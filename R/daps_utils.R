@@ -47,6 +47,7 @@ summarize <- function(daps_fit, prior, min_abs_corr) {
     min_abs_corr = min_abs_corr,
     LD = daps_fit$LD,
     model_index = daps_fit$model_index,
+    reg_weights = daps_fit$reg_weights,
     log_nc = daps_fit$log_nc
   )
 
@@ -55,7 +56,6 @@ summarize <- function(daps_fit, prior, min_abs_corr) {
     pip = daps_fit$pip,
     prior = prior,
     models = models,
-    reg_weights = daps_fit$reg_weights,
     twas_weights = daps_fit$twas_weights,
     info = info
   ))

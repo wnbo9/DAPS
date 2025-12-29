@@ -57,6 +57,16 @@ squared correlation of 0.25.}
 }
 \value{
 A list of DAP-S fine-mapping results.
+\describe{
+\item{effect_pip}{A p*L matrix of SNP posterior probabilities in each signal}
+\item{pip}{A p-vector of marginal SNP-level posterior inclusion probabilities}
+\item{prior}{A p-vector of SNP prior probability of being causal}
+\item{models}{A dataframe of high-probability models identified by DAP-S, together with their posterior probabilities}
+\item{twas_weights}{A p-vector of TWAS weights for each SNP}
+\item{info}{A list of information including signal clusters and stored model details}
+\item{sets}{A list of signal clusters or credible sets identified by DAP-S with the specified coverage level}
+\item{variants}{A variant-level dataframe for eQTL/enloc-style outputs}
+}
 }
 \description{
 DAP-S fine-mapping with individual-level genotype and phenotype data as
@@ -64,13 +74,14 @@ input.
 }
 \examples{
 set.seed(1234)
-n = 1000
-p = 1000
-beta = rep(0, p)
-beta[c(1, 200, 500, 800)] = 1
-X = matrix(rnorm(n*p), nrow = n, ncol = p)
-X = scale(X,center = TRUE, scale = FALSE)
-y = X \%*\% beta + rnorm(n)
-rst = daps(X, y, L = 5)
+n <- 1000
+p <- 1000
+beta <- rep(0, p)
+beta[c(1, 200, 500, 800)] <- 1
+X <- matrix(rnorm(n*p), nrow = n, ncol = p)
+X <- scale(X, center = TRUE, scale = TRUE)
+y <- X \%*\% beta + rnorm(n)
+rst <- daps(X, y, L = 5)
+rst$sets
 daps_plot(rst)
 }

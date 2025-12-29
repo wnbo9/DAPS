@@ -74,17 +74,18 @@ or recovered from regression summary statistics.
 }
 \examples{
 set.seed(1234)
-n = 1000
-p = 1000
-beta = rep(0, p)
-beta[c(1, 200, 500, 800)] = 1
-X = matrix(rnorm(n*p), nrow = n, ncol = p)
-X = scale(X,center = TRUE,scale = FALSE)
-y = X \%*\% beta + rnorm(n)
-y = scale(y,center = TRUE,scale = FALSE)
-XtX = crossprod(X)
-Xty = as.numeric(crossprod(X, y))
-yty = sum(y^2)
-rst = daps_ss(XtX, Xty, yty, n, L = 5)
+n <- 1000
+p <- 1000
+beta <- rep(0, p)
+beta[c(1, 200, 500, 800)] <- 1
+X <- matrix(rnorm(n*p), nrow = n, ncol = p)
+X <- scale(X, center = TRUE, scale = TRUE)
+y <- X \%*\% beta + rnorm(n)
+y <- scale(y, center = TRUE, scale = FALSE)
+XtX <- crossprod(X)
+Xty <- as.numeric(crossprod(X, y))
+yty <- sum(y^2)
+rst <- daps_ss(XtX, Xty, yty, n, L = 5)
+rst$sets
 daps_plot(rst)
 }

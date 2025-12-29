@@ -47,5 +47,5 @@ sufficient statistics.
 z <- c(6,7)
 R <- matrix(1,2,2)
 rst <- daps_rss(z=z, R=R)
-daps_plot(rst)
+rst$pip
 }

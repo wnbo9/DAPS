@@ -65,9 +65,8 @@ A list of DAP-S fine-mapping results.
 z <- c(6,7)
 R <- matrix(1,2,2)
 rst <- daps_rss(z=z, R=R)
-daps_plot(rst)
-#> Warning: Removed 2 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
-#> Warning: Removed 2 rows containing missing values or values outside the scale range
-#> (`geom_point()`).
+rst$pip
+#>      [,1]
+#> [1,]  NaN
+#> [2,]  NaN
 ```
