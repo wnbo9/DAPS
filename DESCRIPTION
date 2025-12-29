@@ -1,0 +1,31 @@
+Package: DAPS
+Title: Deterministic Approximation of Posteriors
+Version: 1.0.0
+Authors@R: c(
+    person("Bo", "Wang", role = c("aut", "cre"), email = "wnbo@umich.edu"),
+    person("Xiaoquan", "Wen", role = "aut"))
+Description: DAPS implements the DAP-S algorithm for Bayesian genetic fine-mapping, integrating SuSiE’s variational approximation with deterministic posterior computation to identify causal variants and construct interpretable signal clusters.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.0.0)
+LinkingTo: 
+    Rcpp,
+    RcppArmadillo,
+Imports: 
+    Rcpp (>= 1.1.0),
+    RcppArmadillo,
+    susieR (>= 0.14.55),
+    ggplot2,
+    patchwork,
+    Rfast
+URL: https://wnbo9.github.io/DAPS/, https://github.com/wnbo9/DAPS
+BugReports: https://github.com/wnbo9/DAPS/issues
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+Remotes:
+    stephenslab/susieR

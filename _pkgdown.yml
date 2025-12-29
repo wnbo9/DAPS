@@ -1,0 +1,39 @@
+url: https://wnbo9.github.io/DAPS
+
+template:
+  bootstrap: 5
+  bootswatch: cosmo
+
+navbar:
+  structure:
+    left: [intro, reference, articles, news]
+    right: [search, github]
+  components:
+    reference:
+      text: Functions
+      href: reference/index.html
+    articles:
+      text: Vignettes
+      href: articles/index.html
+    github:
+      icon: fab fa-github
+      href: https://github.com/wnbo9/DAPS
+      aria-label: GitHub
+
+home:
+  title: DAPS
+  description: DAPS implements the DAP-S algorithm for Bayesian genetic fine-mapping, integrating SuSiE’s variational approximation with deterministic posterior computation to identify causal variants and construct interpretable signal clusters.
+
+reference:
+  - title: "Package Functions"
+    contents:
+      - daps
+      - daps_ss
+      - daps_rss
+      - daps_plot
+      - daps_main
+      - daps_ss_main
+      - get_set
+      - get_enloc
+
+redirects: []

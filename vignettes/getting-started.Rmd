@@ -1,0 +1,54 @@
+---
+title: "Getting started with DAPS"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with DAPS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## DAPS with Individual-level Data
+```{r}
+# Load the DAPS package
+library(DAPS) 
+
+# Run DAP-S fine-mapping
+set.seed(1234)
+n = 1000
+p = 1000
+beta = rep(0, p)
+beta[1:4] = 1
+X = matrix(rnorm(n*p), nrow = n, ncol = p)
+y = X %*% beta + rnorm(n)
+X = scale(X,center = TRUE,scale = FALSE)
+y = scale(y,center = TRUE,scale = FALSE)
+rst = daps(X, y, L = 5)
+rst$sets
+```
+
+## DAPS with Sufficient Statistics
+DAPS is also designed to also work efficiently using **sufficient statistics**, which includes $\boldsymbol{X}^T\boldsymbol{X}, \;\boldsymbol{X}^T\boldsymbol{y}, \; \boldsymbol{y}^T\boldsymbol{y}, \; n$.
+```{r}
+XtX = crossprod(X)
+Xty = as.numeric(crossprod(X, y))
+yty = sum(y^2)
+rst = daps_ss(XtX, Xty, yty, n, L = 5)
+rst$sets
+```
+
+## DAPS with Regression Summary Statistics
+A common scenario in genetics is having only GWAS **regression summary statistics** (e.g., Z-scores and LD matrices). We can use these to recover the necessary inputs for DAP-S fine-mapping.
+```{r}
+rss = susieR::univariate_regression(X, y)
+z = rss$betahat / rss$sebetahat
+R = cor(X)
+rst <- daps_rss(z=z, R=R, n=n)
+rst$sets
+```
