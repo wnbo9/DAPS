@@ -17,7 +17,7 @@ LinkingTo:
 Imports: 
     Rcpp (>= 1.1.0),
     RcppArmadillo,
-    susieR (>= 0.14.55),
+    susieR (>= 0.15.0),
     ggplot2,
     patchwork,
     Rfast
@@ -28,4 +28,4 @@ Suggests:
     rmarkdown
 VignetteBuilder: knitr
 Remotes:
-    stephenslab/susieR
+    stephenslab/susieR@bf2d02d
