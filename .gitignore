@@ -1,7 +1,41 @@
-.Rproj.user
+# ---- R session & user files ----
 .Rhistory
+.Rapp.history
 .RData
 .Ruserdata
-/*.Rcheck/
+
+# ---- RStudio ----
+.Rproj.user/
+*.Rproj
+
+# ---- Compiled code (Rcpp) ----
+src/*.o
+src/*.so
+src/*.dll
+src/*.a
+src/*.dSYM
+src/**/*.o
+src/**/*.so
+src/**/*.dll
+
+# ---- Build artifacts ----
+*.tar.gz
+*.zip
+*.tgz
+
+# ---- Check & install outputs ----
+.Rcheck/
+cran-comments.md
+
+# ---- OS files ----
 .DS_Store
-.vscode/
+Thumbs.db
+
+# ---- Coverage / profiling ----
+*.gcda
+*.gcno
+*.gcov
+
+# ---- Temporary files ----
+*~
+*.swp
