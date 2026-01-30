@@ -16,9 +16,11 @@ daps_ss(
   estimate_residual_variance = TRUE,
   proposal_thresh = 1e-06,
   grid = c(0.04, 0.16, 0.64),
+  unmappable_effects = c("none", "inf"),
   twas_weight = FALSE,
   coverage = NULL,
   min_abs_corr = 0.5,
+  verbose = FALSE,
   ...
 )
 }
@@ -53,6 +55,9 @@ is 1e-6.}
 \item{grid}{Grid of values for scaled effect size prior variance.
 Default is c(0.04, 0.16, 0.64).}
 
+\item{unmappable_effects}{Method for handling unmapped effects.
+Options are "none", "inf". Default is "none".}
+
 \item{twas_weight}{Compute TWAS weights. Default is FALSE.}
 
 \item{coverage}{Coverage level for credible set (e.g. 0.95). Default is
@@ -62,6 +67,8 @@ constrained by a fixed coverage level.}
 \item{min_abs_corr}{Minimum absolute correlation allowed in a signal
 cluster or credible set. Default is 0.5, which corresponds to a
 squared correlation of 0.25.}
+
+\item{verbose}{Whether to print progress messages. Default is FALSE.}
 
 \item{...}{Other parameters to be passed to \code{\link{susie_suff_stat}}.}
 }

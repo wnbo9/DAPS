@@ -12,8 +12,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // daps_main
-Rcpp::List daps_main(const arma::mat& X, const arma::vec& y, int n, const arma::vec& prior, const arma::mat& proposal, double proposal_thresh, const arma::vec& grid, bool twas_weight, double min_abs_corr);
-RcppExport SEXP _DAPS_daps_main(SEXP XSEXP, SEXP ySEXP, SEXP nSEXP, SEXP priorSEXP, SEXP proposalSEXP, SEXP proposal_threshSEXP, SEXP gridSEXP, SEXP twas_weightSEXP, SEXP min_abs_corrSEXP) {
+Rcpp::List daps_main(const arma::mat& X, const arma::vec& y, int n, const arma::vec& prior, const arma::mat& proposal, double proposal_thresh, const arma::vec& grid, bool twas_weight, double min_abs_corr, double sigma2, double sigma2_alpha);
+RcppExport SEXP _DAPS_daps_main(SEXP XSEXP, SEXP ySEXP, SEXP nSEXP, SEXP priorSEXP, SEXP proposalSEXP, SEXP proposal_threshSEXP, SEXP gridSEXP, SEXP twas_weightSEXP, SEXP min_abs_corrSEXP, SEXP sigma2SEXP, SEXP sigma2_alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -26,13 +26,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type grid(gridSEXP);
     Rcpp::traits::input_parameter< bool >::type twas_weight(twas_weightSEXP);
     Rcpp::traits::input_parameter< double >::type min_abs_corr(min_abs_corrSEXP);
-    rcpp_result_gen = Rcpp::wrap(daps_main(X, y, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr));
+    Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
+    Rcpp::traits::input_parameter< double >::type sigma2_alpha(sigma2_alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(daps_main(X, y, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, sigma2, sigma2_alpha));
     return rcpp_result_gen;
 END_RCPP
 }
 // daps_ss_main
-Rcpp::List daps_ss_main(const arma::mat& XtX, const arma::vec& Xty, const double yty, int n, const arma::vec& prior, const arma::mat& proposal, double proposal_thresh, const arma::vec& grid, bool twas_weight, double min_abs_corr);
-RcppExport SEXP _DAPS_daps_ss_main(SEXP XtXSEXP, SEXP XtySEXP, SEXP ytySEXP, SEXP nSEXP, SEXP priorSEXP, SEXP proposalSEXP, SEXP proposal_threshSEXP, SEXP gridSEXP, SEXP twas_weightSEXP, SEXP min_abs_corrSEXP) {
+Rcpp::List daps_ss_main(const arma::mat& XtX, const arma::vec& Xty, const double yty, int n, const arma::vec& prior, const arma::mat& proposal, double proposal_thresh, const arma::vec& grid, bool twas_weight, double min_abs_corr, double sigma2, double sigma2_alpha);
+RcppExport SEXP _DAPS_daps_ss_main(SEXP XtXSEXP, SEXP XtySEXP, SEXP ytySEXP, SEXP nSEXP, SEXP priorSEXP, SEXP proposalSEXP, SEXP proposal_threshSEXP, SEXP gridSEXP, SEXP twas_weightSEXP, SEXP min_abs_corrSEXP, SEXP sigma2SEXP, SEXP sigma2_alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -46,14 +48,16 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type grid(gridSEXP);
     Rcpp::traits::input_parameter< bool >::type twas_weight(twas_weightSEXP);
     Rcpp::traits::input_parameter< double >::type min_abs_corr(min_abs_corrSEXP);
-    rcpp_result_gen = Rcpp::wrap(daps_ss_main(XtX, Xty, yty, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr));
+    Rcpp::traits::input_parameter< double >::type sigma2(sigma2SEXP);
+    Rcpp::traits::input_parameter< double >::type sigma2_alpha(sigma2_alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(daps_ss_main(XtX, Xty, yty, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, sigma2, sigma2_alpha));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_DAPS_daps_main", (DL_FUNC) &_DAPS_daps_main, 9},
-    {"_DAPS_daps_ss_main", (DL_FUNC) &_DAPS_daps_ss_main, 10},
+    {"_DAPS_daps_main", (DL_FUNC) &_DAPS_daps_main, 11},
+    {"_DAPS_daps_ss_main", (DL_FUNC) &_DAPS_daps_ss_main, 12},
     {NULL, NULL, 0}
 };
 

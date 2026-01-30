@@ -37,6 +37,8 @@ private:
     int n;
     arma::vec prior;
     arma::vec grid;
+    double sigma2;
+    double sigma2_alpha;
   } dat;
 
   struct ModelResult {
@@ -72,7 +74,9 @@ public:
                     const arma::vec &grid,
                     bool twas_weight,
                     double min_abs_corr,
-                    int n) {
+                    int n,
+                    double sigma2,
+                    double sigma2_alpha) {
     dat.prior = prior;
     par.proposal = proposal;
     par.proposal_thresh = proposal_thresh;
@@ -80,6 +84,8 @@ public:
     par.twas_weight = twas_weight;
     par.min_abs_corr = min_abs_corr;
     dat.n = n;
+    dat.sigma2 = sigma2;
+    dat.sigma2_alpha = sigma2_alpha;
     par.p = proposal.n_rows;
     par.L = proposal.n_cols;
     sc.clusters.resize(par.L);
@@ -205,6 +211,21 @@ public:
     double log_prior_null = arma::sum(arma::log10(1.0 - dat.prior));
     arma::vec weights = arma::ones(dat.grid.n_elem) / dat.grid.n_elem;
 
+    // Variables for precomputation (only used if sigma2_alpha > 0)
+    arma::vec eigval_full;
+    arma::mat eigvec_full;
+    arma::vec u;
+    arma::mat XtOmegaX;
+    arma::vec XtOmegay;
+
+    if (dat.sigma2_alpha > 0) {
+      arma::eig_sym(eigval_full, eigvec_full, dat.XtX); // X^T X = V D V^T
+      u = eigvec_full.t() * dat.Xty; // u = V^T X^T y
+      arma::vec mat_inv = 1.0 / (dat.sigma2_alpha * eigval_full + dat.sigma2); // diag elements of (sigma2_alpha D + sigma2 I)^-1
+      XtOmegaX = eigvec_full * arma::diagmat(eigval_full % mat_inv) * eigvec_full.t(); // X^T Omega X = V D mat_inv V^T
+      XtOmegay = eigvec_full * (mat_inv % u); // X^T Omega y = V mat_inv u
+    }
+
     for (int i = 0; i < mod.m; i++) {
       // compute prior
       vector<int> snps;
@@ -219,23 +240,48 @@ public:
 
       // extract snp data
       arma::uvec idx = arma::conv_to<arma::uvec>::from(snps);
-      arma::mat GtG = dat.XtX.submat(idx, idx);
-      arma::vec Gty = dat.Xty.elem(idx);
-
-      // compute BF with decomposition
+      arma::vec log_bf_vec(dat.grid.n_elem); // store vector of log_BF over grid
       arma::vec eigval;
       arma::mat eigvec;
-      arma::eig_sym(eigval, eigvec, GtG);
-      arma::vec proj_y = eigvec.t() * Gty;
-      arma::vec proj_y2 = arma::pow(proj_y, 2);
-      // compute BF over grid
-      arma::vec log_bf_vec(dat.grid.n_elem);
-      for (int k = 0; k < dat.grid.n_elem; k++) {
-        double phi2 = dat.grid(k);
-        double log_det = arma::sum(arma::log10(1.0 + phi2 * eigval));
-        double quad_form = phi2 * arma::sum(proj_y2 / (1.0 + phi2 * eigval));
-        log_bf_vec(k) = -0.5 * log_det - 0.5 * dat.n * log10(1.0 - quad_form / dat.yty);
+      arma::vec proj_y;
+      arma::vec proj_y2;
+
+      if (dat.sigma2_alpha == 0) {
+        // BF computation for unmappable_effects = "none"
+        arma::mat GtG = dat.XtX.submat(idx, idx);
+        arma::vec Gty = dat.Xty.elem(idx);
+
+        // compute BF with decomposition
+        arma::eig_sym(eigval, eigvec, GtG);
+        proj_y = eigvec.t() * Gty;
+        proj_y2 = arma::pow(proj_y, 2);
+
+        // compute BF over grid
+        for (int k = 0; k < dat.grid.n_elem; k++) {
+          double phi2 = dat.grid(k);
+          double log_det = arma::sum(arma::log10(1.0 + phi2 * eigval));
+          double quad_form = phi2 * arma::sum(proj_y2 / (1.0 + phi2 * eigval));
+          log_bf_vec(k) = -0.5 * log_det - 0.5 * dat.n * log10(1.0 - quad_form / dat.yty);
+        }
+      } else {
+        // BF computation for unmappable_effects = "inf" or "ash"
+        arma::mat GtOmegaG = XtOmegaX.submat(idx, idx);
+        arma::vec GtOmegay = XtOmegay.elem(idx);
+
+        // compute BF with decomposition
+        arma::eig_sym(eigval, eigvec, GtOmegaG);
+        proj_y = eigvec.t() * GtOmegay;
+        proj_y2 = arma::pow(proj_y, 2);
+
+        // compute BF over grid
+        for (int k = 0; k < dat.grid.n_elem; k++) {
+          double sigma2_beta = dat.grid(k) * dat.sigma2;
+          double log_det = arma::sum(arma::log10(1.0 + sigma2_beta * eigval));
+          double quad_form = sigma2_beta * arma::sum(proj_y2 / (1.0 + sigma2_beta * eigval));
+          log_bf_vec(k) = -0.5 * log_det + 0.5 * quad_form * log10(exp(1.0));
+        }
       }
+
       // average over grid
       double max_log_bf = arma::max(log_bf_vec);
       double weighted_sum = arma::sum(weights % arma::exp(log(10.0) * (log_bf_vec - max_log_bf)));
@@ -248,6 +294,7 @@ public:
         }
       }
     }
+
     mod.log_posterior = mod.log_prior + mod.log_bf;
     // compute posterior model probabilities
     double max_log_posterior = arma::max(mod.log_posterior);
@@ -256,6 +303,7 @@ public:
     mod.posterior_prob = exp_val / sum_exp_val;
     rst.log_nc = max_log_posterior + log10(sum_exp_val);
   }
+
 
   void summarize() {
     rst.pip.zeros(par.p - 1);
@@ -383,6 +431,8 @@ public:
 //' @param grid Grid of scaled prior variance values (k x 1)
 //' @param twas_weight Logical indicating whether to use TWAS weights
 //' @param min_abs_corr Minimum absolute correlation for TWAS weights (scalar)
+//' @param sigma2 Residual variance estimate from SuSiE (scalar; used for inf or ash)
+//' @param sigma2_alpha Estimated variance of small effect sizes (scalar; used for inf or ash)
 //' @return A list containing models and input data
 //'
 //' @export
@@ -395,11 +445,13 @@ Rcpp::List daps_main(const arma::mat &X,
                      double proposal_thresh,
                      const arma::vec &grid,
                      bool twas_weight,
-                     double min_abs_corr) {
+                     double min_abs_corr,
+                     double sigma2,
+                     double sigma2_alpha) {
 
   DAPSObject daps;
 
-  daps.parse_params(prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, n);
+  daps.parse_params(prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, n, sigma2, sigma2_alpha);
 
   daps.load_data(X, y);
 
@@ -428,6 +480,8 @@ Rcpp::List daps_main(const arma::mat &X,
 //' @param grid Grid of scaled prior variance values (k x 1)
 //' @param twas_weight Logical indicating whether to use TWAS weights
 //' @param min_abs_corr Minimum absolute correlation for TWAS weights (scalar)
+//' @param sigma2 Residual variance estimate from SuSiE (scalar; used for inf or ash)
+//' @param sigma2_alpha Estimated variance of small effect sizes (scalar; used for inf or ash)
 //' @return A list containing models and input data
 //'
 //' @export
@@ -441,12 +495,13 @@ Rcpp::List daps_ss_main(const arma::mat &XtX,
                         double proposal_thresh,
                         const arma::vec &grid,
                         bool twas_weight,
-                        double min_abs_corr) {
+                        double min_abs_corr,
+                        double sigma2,
+                        double sigma2_alpha) {
 
   DAPSObject daps;
 
-  daps.parse_params(prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, n);
-
+  daps.parse_params(prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, n, sigma2, sigma2_alpha);
   daps.load_data_ss(XtX, Xty, yty);
   
   daps.sampling();

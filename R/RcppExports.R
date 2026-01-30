@@ -12,11 +12,13 @@
 #' @param grid Grid of scaled prior variance values (k x 1)
 #' @param twas_weight Logical indicating whether to use TWAS weights
 #' @param min_abs_corr Minimum absolute correlation for TWAS weights (scalar)
+#' @param sigma2 Residual variance estimate from SuSiE (scalar; used for inf or ash)
+#' @param sigma2_alpha Estimated variance of small effect sizes (scalar; used for inf or ash)
 #' @return A list containing models and input data
 #'
 #' @export
-daps_main <- function(X, y, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr) {
-    .Call(`_DAPS_daps_main`, X, y, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr)
+daps_main <- function(X, y, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, sigma2, sigma2_alpha) {
+    .Call(`_DAPS_daps_main`, X, y, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, sigma2, sigma2_alpha)
 }
 
 #' DAPS_SS main function in Rcpp
@@ -31,10 +33,12 @@ daps_main <- function(X, y, n, prior, proposal, proposal_thresh, grid, twas_weig
 #' @param grid Grid of scaled prior variance values (k x 1)
 #' @param twas_weight Logical indicating whether to use TWAS weights
 #' @param min_abs_corr Minimum absolute correlation for TWAS weights (scalar)
+#' @param sigma2 Residual variance estimate from SuSiE (scalar; used for inf or ash)
+#' @param sigma2_alpha Estimated variance of small effect sizes (scalar; used for inf or ash)
 #' @return A list containing models and input data
 #'
 #' @export
-daps_ss_main <- function(XtX, Xty, yty, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr) {
-    .Call(`_DAPS_daps_ss_main`, XtX, Xty, yty, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr)
+daps_ss_main <- function(XtX, Xty, yty, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, sigma2, sigma2_alpha) {
+    .Call(`_DAPS_daps_ss_main`, XtX, Xty, yty, n, prior, proposal, proposal_thresh, grid, twas_weight, min_abs_corr, sigma2, sigma2_alpha)
 }
 

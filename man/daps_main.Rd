@@ -13,7 +13,9 @@ daps_main(
   proposal_thresh,
   grid,
   twas_weight,
-  min_abs_corr
+  min_abs_corr,
+  sigma2,
+  sigma2_alpha
 )
 }
 \arguments{
@@ -34,6 +36,10 @@ daps_main(
 \item{twas_weight}{Logical indicating whether to use TWAS weights}
 
 \item{min_abs_corr}{Minimum absolute correlation for TWAS weights (scalar)}
+
+\item{sigma2}{Residual variance estimate from SuSiE (scalar; used for inf or ash)}
+
+\item{sigma2_alpha}{Estimated variance of small effect sizes (scalar; used for inf or ash)}
 }
 \value{
 A list containing models and input data

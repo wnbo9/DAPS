@@ -118,11 +118,9 @@ get_set <- function(output, coverage) {
     abs_cors <- abs(upper_tri@x)
     if (length(abs_cors) == 0) abs_cors <- 0
 
-    c(
-      min.abs.corr    = min(abs_cors),
+    c(min.abs.corr    = min(abs_cors),
       mean.abs.corr   = mean(abs_cors),
-      median.abs.corr = stats::median(abs_cors)
-    )
+      median.abs.corr = stats::median(abs_cors))
   }))
   purity <- as.data.frame(purity)
 
@@ -132,7 +130,7 @@ get_set <- function(output, coverage) {
     set_index = set_indices,
     coverage = set_coverages,
     min_abs_corr = output$info$min_abs_corr,
-    requested_coverage = coverage
+    requested_coverage = if (is.null(coverage)) "signal clusters" else coverage
   ))
 }
 
@@ -140,14 +138,12 @@ get_set <- function(output, coverage) {
 #' DAP-S variant-level table for eQTL/enloc-style outputs
 #'
 #' Construct a variant-level data frame listing variants inside each
-#' signal cluster (coverage = NULL) or credible set (coverage given).
+#' signal cluster or credible set (coverage given).
 #'
 #' @param output A list of DAP-S fine-mapping results.
-#' @param coverage Desired coverage for credible sets. If NULL, use full
-#'  signal clusters.
 #' @return A data.frame with columns: SC_ID, SNP_ID, PIP.
 #' @export
-get_enloc <- function(output, coverage = NULL) {
+get_enloc <- function(output) {
 
   sets <- output$sets$sets
   set_ids <- output$sets$set_index

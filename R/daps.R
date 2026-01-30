@@ -18,6 +18,8 @@
 #'  is 1e-6.
 #' @param grid Grid of values for scaled effect size prior variance.
 #'  Default is c(0.04, 0.16, 0.64).
+#' @param unmappable_effects Method for handling unmapped effects.
+#'  Options are "none", "inf", and "ash". Default is "none".
 #' @param twas_weight Compute TWAS weights. Default is FALSE.
 #' @param coverage Coverage leveel for credible set (e.g. 0.95). Default is
 #'  NULL, in which the algorithm returns signal clusters that are not
@@ -25,6 +27,7 @@
 #' @param min_abs_corr Minimum absolute correlation allowed in a signal
 #'  cluster or credible set. Ddefault is 0.5, which corresponds to a
 #'  squared correlation of 0.25.
+#' @param verbose Whether to print progress messages. Default is FALSE.
 #' @param ... Additional arguments passed to \code{\link{susie}}.
 #'
 #' @return A list of DAP-S fine-mapping results.
@@ -36,7 +39,7 @@
 #'  \item{twas_weights}{A p-vector of TWAS weights for each SNP}
 #'  \item{info}{A list of information including signal clusters and stored model details}
 #'  \item{sets}{A list of signal clusters or credible sets identified by DAP-S with the specified coverage level}
-#'  \item{variants}{A variant-level dataframe for eQTL/enloc-style outputs}
+#'  \item{variants}{A variant-level dataframe for FastENLOC-style input}
 #' }
 #'
 #' @export
@@ -56,12 +59,15 @@
 daps <- function(
   X, y, L = min(10, ncol(X)),
   standardize = FALSE,
-  prior = NULL, null_wt = NULL,
+  prior = NULL,
+  null_wt = NULL,
   proposal_thresh = 1e-6,
   grid = c(0.04, 0.16, 0.64),
+  unmappable_effects = c("none", "inf", "ash"),
   twas_weight = FALSE,
   coverage = NULL,
   min_abs_corr = 0.5,
+  verbose = FALSE,
   ...
 ) {
 
@@ -80,21 +86,26 @@ daps <- function(
     standardize = standardize,
     prior_weights = prior / (1 - null_wt),
     null_weight = null_wt,
-    coverage = 0
+    coverage = 0,
+    unmappable_effects = match.arg(unmappable_effects),
+    verbose = verbose
   )
   susie_args <- modifyList(susie_args, list(...))
   susie_fit <- do.call(susieR::susie, susie_args)
   proposal <- get_proposal(susie_fit)
+  sigma2 <- susie_fit$sigma2
+  sigma2_alpha <- if (is.null(susie_fit$tau2)) 0 else susie_fit$tau2
 
   daps_fit <- daps_main(
     X, y, n,
     prior, proposal, proposal_thresh,
-    grid, twas_weight, min_abs_corr
+    grid, twas_weight, min_abs_corr,
+    sigma2, sigma2_alpha
   )
 
   output <- summarize(daps_fit, prior, min_abs_corr)
   output$sets <- get_set(output, coverage)
-  output$variants <- get_enloc(output, coverage)
+  output$variants <- get_enloc(output)
 
   return(output)
 }
@@ -125,6 +136,8 @@ daps <- function(
 #'  is 1e-6.
 #' @param grid Grid of values for scaled effect size prior variance.
 #'  Default is c(0.04, 0.16, 0.64).
+#' @param unmappable_effects Method for handling unmapped effects.
+#'  Options are "none", "inf". Default is "none".
 #' @param twas_weight Compute TWAS weights. Default is FALSE.
 #' @param coverage Coverage level for credible set (e.g. 0.95). Default is
 #'  NULL, in which the algorithm returns signal clusters that are not
@@ -132,6 +145,7 @@ daps <- function(
 #' @param min_abs_corr Minimum absolute correlation allowed in a signal
 #'  cluster or credible set. Default is 0.5, which corresponds to a
 #'  squared correlation of 0.25.
+#' @param verbose Whether to print progress messages. Default is FALSE.
 #' @param ... Other parameters to be passed to \code{\link{susie_suff_stat}}.
 #'
 #' @return A list of DAP-S fine-mapping results.
@@ -157,13 +171,16 @@ daps_ss <- function(
     XtX, Xty, yty, n,
     L = min(10, ncol(XtX)),
     standardize = FALSE,
-    prior = NULL, null_wt = NULL,
+    prior = NULL,
+    null_wt = NULL,
     estimate_residual_variance = TRUE,
     proposal_thresh = 1e-6,
     grid = c(0.04, 0.16, 0.64),
+    unmappable_effects = c("none", "inf"),
     twas_weight = FALSE,
     coverage = NULL,
     min_abs_corr = 0.5,
+    verbose = FALSE,
     ...
 ) {
 
@@ -187,21 +204,26 @@ daps_ss <- function(
     prior_weights = prior / (1 - null_wt),
     null_weight = null_wt,
     estimate_residual_variance = estimate_residual_variance,
-    coverage = 0
+    coverage = 0,
+    unmappable_effects = match.arg(unmappable_effects),
+    verbose = verbose
   )
   susie_args <- modifyList(susie_args, list(...))
   susie_fit <- do.call(susieR::susie_ss, susie_args)
   proposal <- get_proposal(susie_fit)
+  sigma2 <- susie_fit$sigma2
+  sigma2_alpha <- if (is.null(susie_fit$tau2)) 0 else susie_fit$tau2
 
   daps_fit <- daps_ss_main(
     XtX, Xty, yty, n,
     prior, proposal, proposal_thresh,
-    grid, twas_weight, min_abs_corr
+    grid, twas_weight, min_abs_corr,
+    sigma2, sigma2_alpha
   )
 
   output <- summarize(daps_fit, prior, min_abs_corr)
   output$sets <- get_set(output, coverage)
-  output$variants <- get_enloc(output, coverage)
+  output$variants <- get_enloc(output)
 
   return(output)
 }
@@ -221,9 +243,28 @@ daps_ss <- function(
 #'  together can be replaced by z.
 #' @param var_y Phenotypic variance, defined as y'y/(n-1). When not
 #'  provided, the algorithm works on standardized data.
+#' @param prior SNP-level prior weights, given as a vector of
+#'  length p. Default is NULL which corresponds to uninformative weights.
+#' @param null_wt Null weight used in SuSiE, defined as the prior
+#'  probability of no causal variants in the region. Default is calculated
+#'  as \code{prod(1 - prior)}.
 #' @param estimate_residual_variance Estimate residual variance in SuSiE.
 #'  Default is FALSE. If the in sample LD matrix is used, we recommend
 #'  setting this to TRUE.
+#' @param proposal_thresh Threshold for proposal acceptance. Default value
+#'  is 1e-6.
+#' @param grid Grid of values for scaled effect size prior variance.
+#'  Default is c(0.04, 0.16, 0.64).
+#' @param unmappable_effects Method for handling unmapped effects.
+#'  Options are "none", "inf". Default is "none".
+#' @param twas_weight Compute TWAS weights. Default is FALSE.
+#' @param coverage Coverage level for credible set (e.g. 0.95). Default is
+#'  NULL, in which the algorithm returns signal clusters that are not
+#'  constrained by a fixed coverage level.
+#' @param min_abs_corr Minimum absolute correlation allowed in a signal
+#'  cluster or credible set. Default is 0.5, which corresponds to a
+#'  squared correlation of 0.25.
+#' @param verbose Whether to print progress messages. Default is FALSE.
 #' @param ... Other parameters to be passed to \code{\link{daps_suff_stat}}.
 #'
 #' @return A list of DAP-S fine-mapping results.
@@ -237,7 +278,15 @@ daps_ss <- function(
 daps_rss <- function(
   z = NULL, R, n = NULL,
   bhat = NULL, shat = NULL, var_y = NULL,
+  prior = NULL, null_wt = NULL,
   estimate_residual_variance = FALSE,
+  proposal_thresh = 1e-6,
+  grid = c(0.04, 0.16, 0.64),
+  unmappable_effects = c("none", "inf"),
+  twas_weight = FALSE,
+  coverage = NULL,
+  min_abs_corr = 0.5,
+  verbose = FALSE,
   ...
 ) {
 
@@ -283,7 +332,14 @@ daps_rss <- function(
 
   daps_args <- list(
     XtX = XtX, Xty = Xty, yty = yty, n = n,
-    estimate_residual_variance = estimate_residual_variance
+    prior = NULL, null_wt = NULL,
+    estimate_residual_variance = estimate_residual_variance,
+    proposal_thresh = proposal_thresh, grid = grid,
+    unmappable_effects = match.arg(unmappable_effects),
+    twas_weight = twas_weight,
+    coverage = coverage,
+    min_abs_corr = min_abs_corr,
+    verbose = verbose
   )
   daps_args <- modifyList(daps_args, list(...))
   output <- do.call(daps_ss, daps_args)

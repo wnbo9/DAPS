@@ -13,9 +13,11 @@ daps(
   null_wt = NULL,
   proposal_thresh = 1e-06,
   grid = c(0.04, 0.16, 0.64),
+  unmappable_effects = c("none", "inf", "ash"),
   twas_weight = FALSE,
   coverage = NULL,
   min_abs_corr = 0.5,
+  verbose = FALSE,
   ...
 )
 }
@@ -43,6 +45,9 @@ is 1e-6.}
 \item{grid}{Grid of values for scaled effect size prior variance.
 Default is c(0.04, 0.16, 0.64).}
 
+\item{unmappable_effects}{Method for handling unmapped effects.
+Options are "none", "inf", and "ash". Default is "none".}
+
 \item{twas_weight}{Compute TWAS weights. Default is FALSE.}
 
 \item{coverage}{Coverage leveel for credible set (e.g. 0.95). Default is
@@ -52,6 +57,8 @@ constrained by a fixed coverage level.}
 \item{min_abs_corr}{Minimum absolute correlation allowed in a signal
 cluster or credible set. Ddefault is 0.5, which corresponds to a
 squared correlation of 0.25.}
+
+\item{verbose}{Whether to print progress messages. Default is FALSE.}
 
 \item{...}{Additional arguments passed to \code{\link{susie}}.}
 }
@@ -65,7 +72,7 @@ A list of DAP-S fine-mapping results.
 \item{twas_weights}{A p-vector of TWAS weights for each SNP}
 \item{info}{A list of information including signal clusters and stored model details}
 \item{sets}{A list of signal clusters or credible sets identified by DAP-S with the specified coverage level}
-\item{variants}{A variant-level dataframe for eQTL/enloc-style outputs}
+\item{variants}{A variant-level dataframe for FastENLOC-style input}
 }
 }
 \description{

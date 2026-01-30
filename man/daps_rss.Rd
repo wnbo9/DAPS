@@ -11,7 +11,16 @@ daps_rss(
   bhat = NULL,
   shat = NULL,
   var_y = NULL,
+  prior = NULL,
+  null_wt = NULL,
   estimate_residual_variance = FALSE,
+  proposal_thresh = 1e-06,
+  grid = c(0.04, 0.16, 0.64),
+  unmappable_effects = c("none", "inf"),
+  twas_weight = FALSE,
+  coverage = NULL,
+  min_abs_corr = 0.5,
+  verbose = FALSE,
   ...
 )
 }
@@ -30,9 +39,37 @@ together can be replaced by z.}
 \item{var_y}{Phenotypic variance, defined as y'y/(n-1). When not
 provided, the algorithm works on standardized data.}
 
+\item{prior}{SNP-level prior weights, given as a vector of
+length p. Default is NULL which corresponds to uninformative weights.}
+
+\item{null_wt}{Null weight used in SuSiE, defined as the prior
+probability of no causal variants in the region. Default is calculated
+as \code{prod(1 - prior)}.}
+
 \item{estimate_residual_variance}{Estimate residual variance in SuSiE.
 Default is FALSE. If the in sample LD matrix is used, we recommend
 setting this to TRUE.}
+
+\item{proposal_thresh}{Threshold for proposal acceptance. Default value
+is 1e-6.}
+
+\item{grid}{Grid of values for scaled effect size prior variance.
+Default is c(0.04, 0.16, 0.64).}
+
+\item{unmappable_effects}{Method for handling unmapped effects.
+Options are "none", "inf". Default is "none".}
+
+\item{twas_weight}{Compute TWAS weights. Default is FALSE.}
+
+\item{coverage}{Coverage level for credible set (e.g. 0.95). Default is
+NULL, in which the algorithm returns signal clusters that are not
+constrained by a fixed coverage level.}
+
+\item{min_abs_corr}{Minimum absolute correlation allowed in a signal
+cluster or credible set. Default is 0.5, which corresponds to a
+squared correlation of 0.25.}
+
+\item{verbose}{Whether to print progress messages. Default is FALSE.}
 
 \item{...}{Other parameters to be passed to \code{\link{daps_suff_stat}}.}
 }

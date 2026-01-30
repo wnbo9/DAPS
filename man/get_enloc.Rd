@@ -4,18 +4,15 @@
 \alias{get_enloc}
 \title{DAP-S variant-level table for eQTL/enloc-style outputs}
 \usage{
-get_enloc(output, coverage = NULL)
+get_enloc(output)
 }
 \arguments{
 \item{output}{A list of DAP-S fine-mapping results.}
-
-\item{coverage}{Desired coverage for credible sets. If NULL, use full
-signal clusters.}
 }
 \value{
 A data.frame with columns: SC_ID, SNP_ID, PIP.
 }
 \description{
 Construct a variant-level data frame listing variants inside each
-signal cluster (coverage = NULL) or credible set (coverage given).
+signal cluster or credible set (coverage given).
 }
