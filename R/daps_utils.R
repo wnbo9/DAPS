@@ -105,6 +105,15 @@ get_set <- function(output, coverage) {
     }
   }
 
+  if (length(sets) == 0) {
+    return(list(
+      sets = list(),
+      coverage = numeric(),
+      min_abs_corr = output$info$min_abs_corr,
+      requested_coverage = if (is.null(coverage)) "signal clusters" else coverage
+    ))
+  }
+
   names(sets) <- paste0("S", set_indices)
 
   # Purity table
