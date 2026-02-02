@@ -107,8 +107,8 @@ get_set <- function(output, coverage) {
 
   if (length(sets) == 0) {
     return(list(
-      sets = list(),
-      coverage = numeric(),
+      sets = NULL,
+      coverage = NULL,
       min_abs_corr = output$info$min_abs_corr,
       requested_coverage = if (is.null(coverage)) "signal clusters" else coverage
     ))
