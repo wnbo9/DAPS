@@ -46,13 +46,13 @@ summarize <- function(daps_fit, prior, min_abs_corr) {
     cpip = daps_fit$cpip,
     min_abs_corr = min_abs_corr,
     LD = daps_fit$LD,
+    effect_pip = daps_fit$effect_pip,
     model_index = daps_fit$model_index,
     reg_weights = daps_fit$reg_weights,
     log_nc = daps_fit$log_nc
   )
 
   return(list(
-    effect_pip = daps_fit$effect_pip,
     pip = daps_fit$pip,
     prior = prior,
     models = models,
@@ -162,7 +162,7 @@ get_enloc <- function(output) {
 
     if (length(current_snps) == 0) next
 
-    current_pips <- output$effect_pip[current_snps, current_sc_id]
+    current_pips <- output$info$effect_pip[current_snps, current_sc_id]
 
     sc_id[[i]] <- rep.int(current_sc_id, length(current_snps))
     snp_id[[i]] <- current_snps
