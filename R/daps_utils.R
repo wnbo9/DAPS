@@ -4,21 +4,26 @@
 #'  from the SuSiE fit.
 #'
 #' @param susie_fit A SuSiE fit object.
+#' @param dedup Whether to remove duplicate effects
+#'  (effects with the same top 5 SNPs). Default is TRUE.
 #'
 #' @return A matrix of proposal distribution.
 #' @noRd
-get_proposal <- function(susie_fit) {
+get_proposal <- function(susie_fit, dedup = TRUE) {
   # Extract non-zero effects
   mat <- t(susie_fit$alpha)
   cols <- which(susie_fit$V != 0)
   if (length(cols) == 0) cols <- 1
   mat <- mat[, cols, drop = FALSE]
 
-  # Remove duplicate effects
-  top5 <- apply(mat, 2, function(x) sort(order(x, decreasing = TRUE)[1:5]))
-  keep <- !duplicated(as.data.frame(t(top5)))
+  if (dedup) {
+    # Remove duplicate effects
+    top5 <- apply(mat, 2, function(x) sort(order(x, decreasing = TRUE)[1:5]))
+    keep <- !duplicated(as.data.frame(t(top5)))
+    mat <- mat[, keep, drop = FALSE]
+  }
 
-  return(mat[, keep, drop = FALSE])
+  return(mat)
 }
 
 #' Generate DAP-S fine-mapping results output

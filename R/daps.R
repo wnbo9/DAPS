@@ -27,6 +27,8 @@
 #' @param min_abs_corr Minimum absolute correlation allowed in a signal
 #'  cluster or credible set. Ddefault is 0.5, which corresponds to a
 #'  squared correlation of 0.25.
+#' @param dedup Whether to remove duplicate effects
+#'  (effects with the same top 5 SNPs). Default is TRUE.
 #' @param verbose Whether to print progress messages. Default is FALSE.
 #' @param ... Additional arguments passed to \code{\link{susie}}.
 #'
@@ -67,6 +69,7 @@ daps <- function(
   twas_weight = FALSE,
   coverage = NULL,
   min_abs_corr = 0.5,
+  dedup = TRUE,
   verbose = FALSE,
   ...
 ) {
@@ -92,7 +95,7 @@ daps <- function(
   )
   susie_args <- modifyList(susie_args, list(...))
   susie_fit <- do.call(susieR::susie, susie_args)
-  proposal <- get_proposal(susie_fit)
+  proposal <- get_proposal(susie_fit, dedup)
   sigma2 <- susie_fit$sigma2
   sigma2_alpha <- if (is.null(susie_fit$tau2)) 0 else susie_fit$tau2
 
@@ -145,6 +148,8 @@ daps <- function(
 #' @param min_abs_corr Minimum absolute correlation allowed in a signal
 #'  cluster or credible set. Default is 0.5, which corresponds to a
 #'  squared correlation of 0.25.
+#' @param dedup Whether to remove duplicate effects
+#'  (effects with the same top 5 SNPs). Default is TRUE.
 #' @param verbose Whether to print progress messages. Default is FALSE.
 #' @param ... Other parameters to be passed to \code{\link{susie_suff_stat}}.
 #'
@@ -180,6 +185,7 @@ daps_ss <- function(
     twas_weight = FALSE,
     coverage = NULL,
     min_abs_corr = 0.5,
+    dedup = TRUE,
     verbose = FALSE,
     ...
 ) {
@@ -210,7 +216,7 @@ daps_ss <- function(
   )
   susie_args <- modifyList(susie_args, list(...))
   susie_fit <- do.call(susieR::susie_ss, susie_args)
-  proposal <- get_proposal(susie_fit)
+  proposal <- get_proposal(susie_fit, dedup)
   sigma2 <- susie_fit$sigma2
   sigma2_alpha <- if (is.null(susie_fit$tau2)) 0 else susie_fit$tau2
 
@@ -264,6 +270,8 @@ daps_ss <- function(
 #' @param min_abs_corr Minimum absolute correlation allowed in a signal
 #'  cluster or credible set. Default is 0.5, which corresponds to a
 #'  squared correlation of 0.25.
+#' @param dedup Whether to remove duplicate effects
+#'  (effects with the same top 5 SNPs). Default is TRUE.
 #' @param verbose Whether to print progress messages. Default is FALSE.
 #' @param ... Other parameters to be passed to \code{\link{daps_suff_stat}}.
 #'
@@ -286,6 +294,7 @@ daps_rss <- function(
   twas_weight = FALSE,
   coverage = NULL,
   min_abs_corr = 0.5,
+  dedup = TRUE,
   verbose = FALSE,
   ...
 ) {
@@ -339,6 +348,7 @@ daps_rss <- function(
     twas_weight = twas_weight,
     coverage = coverage,
     min_abs_corr = min_abs_corr,
+    dedup = dedup,
     verbose = verbose
   )
   daps_args <- modifyList(daps_args, list(...))

@@ -17,6 +17,7 @@ daps(
   twas_weight = FALSE,
   coverage = NULL,
   min_abs_corr = 0.5,
+  dedup = TRUE,
   verbose = FALSE,
   ...
 )
@@ -57,6 +58,9 @@ constrained by a fixed coverage level.}
 \item{min_abs_corr}{Minimum absolute correlation allowed in a signal
 cluster or credible set. Ddefault is 0.5, which corresponds to a
 squared correlation of 0.25.}
+
+\item{dedup}{Whether to remove duplicate effects
+(effects with the same top 5 SNPs). Default is TRUE.}
 
 \item{verbose}{Whether to print progress messages. Default is FALSE.}
 
