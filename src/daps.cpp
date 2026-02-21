@@ -137,26 +137,24 @@ public:
 
       if (log_q >= log_thresh) { // model passes proposal threshold
         vector<int> gamma_set;
-        bool valid = true;
         for (int l = 0; l < par.L; l++) {
           if (gamma[l] != par.p - 1) { //skip null indicator
             if (find(gamma_set.begin(), gamma_set.end(), gamma[l]) != gamma_set.end()) {
-              valid = false; // duplicate SNP in model
-              break;
+              gamma[l] = par.p - 1; // replace duplicate SNP in model as null indicator
             } else {
               gamma_set.push_back(gamma[l]);
             }
           }
         }
-        if (valid) { // no duplicate SNPs in model and unique model
-          sort(gamma_set.begin(), gamma_set.end());
-          if (unique_models.insert(gamma_set).second) {
-            mod.models.push_back(gamma);
-            for (int l = 0; l < par.L; l++) {
-              if (gamma[l] != par.p - 1) {sc.clusters[l].insert(gamma[l]);}
-            }
+
+        sort(gamma_set.begin(), gamma_set.end());
+        if (unique_models.insert(gamma_set).second) {
+          mod.models.push_back(gamma); // store unique models
+          for (int l = 0; l < par.L; l++) {
+            if (gamma[l] != par.p - 1) {sc.clusters[l].insert(gamma[l]);}
           }
         }
+
         while (k < par.L) { // increment
           v[k]++;
           if (v[k] < par.p) {
@@ -167,7 +165,7 @@ public:
           }
         }
       } else {
-        bool exit = false; //backtrack to find next valid model
+        bool exit = false; //backtrack to find next model
         while (k < par.L && !exit) {
           if (v[k] > 0) {
             v[k] = 0;
