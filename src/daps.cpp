@@ -203,7 +203,7 @@ public:
     mod.m = mod.models.size();
     mod.log_prior.set_size(mod.m);
     mod.log_bf.set_size(mod.m);
-    if (par.twas_weight) {mod.reg_weights.resize(mod.m); rst.twas_weights.set_size(par.p - 1);}
+    if (par.twas_weight) {mod.reg_weights.resize(mod.m); rst.twas_weights.zeros(par.p - 1);}
 
     arma::vec log_prior_diff = arma::log10(dat.prior) - arma::log10(1.0 - dat.prior);
     double log_prior_null = arma::sum(arma::log10(1.0 - dat.prior));
