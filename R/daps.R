@@ -341,7 +341,7 @@ daps_rss <- function(
 
   daps_args <- list(
     XtX = XtX, Xty = Xty, yty = yty, n = n,
-    prior = NULL, null_wt = NULL,
+    prior = prior, null_wt = null_wt,
     estimate_residual_variance = estimate_residual_variance,
     proposal_thresh = proposal_thresh, grid = grid,
     unmappable_effects = match.arg(unmappable_effects),
