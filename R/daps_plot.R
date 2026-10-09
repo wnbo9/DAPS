@@ -56,7 +56,7 @@ daps_plot <- function(res, band = 0) {
   breaks_y <- seg_df$row_pos
   labels_y <- as.character(seg_df$cluster)
 
-  xlab2 <- if (is.null(coverage)) {
+  xlab2 <- if (is.null(coverage) || identical(coverage, "signal clusters")) {
     "Signal clusters"
   } else {
     if (!is.numeric(coverage) || coverage <= 0 || coverage > 1)
