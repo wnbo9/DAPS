@@ -11,14 +11,26 @@
 #' @import ggplot2
 #' @import patchwork
 daps_plot <- function(res, band = 0) {
-  pip <- res$pip
+  pip <- as.numeric(res$pip)
   sc_list <- res$sets$sets
-  effect_pip <- res$info$effect_pip[, res$sets$set_index]
+  effect_pip <- res$info$effect_pip[, res$sets$set_index, drop = FALSE]
   coverage <- res$sets$requested_coverage
   min_abs_corr <- res$sets$min_abs_corr
   CPIP <- res$sets$coverage
 
   if (!is.numeric(pip)) stop("pip must be a numeric vector.")
+
+  # no signal clusters / credible sets: PIP panel only
+  if (length(sc_list) == 0) {
+    df_pip <- data.frame(snp = seq_along(pip), pip = pip)
+    return(
+      ggplot2::ggplot(df_pip, ggplot2::aes(x = snp, y = pip)) +
+        ggplot2::geom_point(color = "black", size = 1.3) +
+        ggplot2::labs(x = "SNP index", y = "PIP") +
+        ggplot2::theme_bw() +
+        ggplot2::theme(panel.grid = ggplot2::element_blank())
+    )
+  }
   if (!is.list(sc_list)) stop("sc_list must be a list of index vectors.")
 
   p <- length(pip)
@@ -64,7 +76,7 @@ daps_plot <- function(res, band = 0) {
     paste0(sprintf("%.0f", coverage * 100), "% credible sets")
   }
   if (!is.null(min_abs_corr)) {
-    xlab2 <- paste0(xlab2, " with purity ≥ ", min_abs_corr, "")
+    xlab2 <- paste0(xlab2, " with purity >= ", min_abs_corr)
   }
 
   sc_df$y <- sc_df$row_pos

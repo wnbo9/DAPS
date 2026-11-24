@@ -40,12 +40,14 @@ min(10, p).}
 
 \item{standardize}{Standardize each column of X and y. Default is FALSE.}
 
-\item{prior}{SNP-level prior weights, given as a vector of
+\item{prior}{Marginal SNP-level prior weights, given as a vector of
 length p. Default is NULL which corresponds to uninformative weights.}
 
-\item{null_wt}{Null weight used in SuSiE, defined as the prior
+\item{null_wt}{Null weight, defined as the prior
 probability of no causal variants in the region. Default is calculated
-as \code{prod(1 - prior)}.}
+as \code{prod(1 - prior)}. The prior and null_wt are used to compute
+the prior weights and null weight for SuSiE, where the prior weights
+are conditional on the non-null.}
 
 \item{estimate_residual_variance}{Estimate residual variance in SuSiE.
 Default is TRUE.}

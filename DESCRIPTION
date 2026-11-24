@@ -11,15 +11,16 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends:
     R (>= 4.0.0)
-LinkingTo: 
+LinkingTo:
     Rcpp,
-    RcppArmadillo,
-Imports: 
+    RcppArmadillo
+Imports:
     Rcpp (>= 1.1.0),
     RcppArmadillo,
     susieR (>= 0.15.0),
     ggplot2,
     patchwork,
+    Matrix,
     Rfast
 URL: https://wnbo9.github.io/DAPS/, https://github.com/wnbo9/DAPS
 BugReports: https://github.com/wnbo9/DAPS/issues

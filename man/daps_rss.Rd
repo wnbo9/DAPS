@@ -40,12 +40,14 @@ together can be replaced by z.}
 \item{var_y}{Phenotypic variance, defined as y'y/(n-1). When not
 provided, the algorithm works on standardized data.}
 
-\item{prior}{SNP-level prior weights, given as a vector of
+\item{prior}{Marginal SNP-level prior weights, given as a vector of
 length p. Default is NULL which corresponds to uninformative weights.}
 
-\item{null_wt}{Null weight used in SuSiE, defined as the prior
+\item{null_wt}{Null weight, defined as the prior
 probability of no causal variants in the region. Default is calculated
-as \code{prod(1 - prior)}.}
+as \code{prod(1 - prior)}. The prior and null_wt are used to compute
+the prior weights and null weight for SuSiE, where the prior weights
+are conditional on the non-null.}
 
 \item{estimate_residual_variance}{Estimate residual variance in SuSiE.
 Default is FALSE. If the in sample LD matrix is used, we recommend

@@ -9,11 +9,13 @@
 #' @param L Maximum number of causal SNPs allowed in the model.  Default is
 #'  min(10, p).
 #' @param standardize Standardize each column of X. Default is FALSE.
-#' @param prior SNP-level prior weights, given as a vector of
+#' @param prior Marginal SNP-level prior weights, given as a vector of
 #'  length p. Default is NULL which corresponds to uninformative weights.
-#' @param null_wt Null weight used in SuSiE, defined as the prior
+#' @param null_wt Null weight, defined as the prior
 #'  probability of no causal variants in the region. Default is calculated
-#'  as \code{prod(1 - prior)}.
+#'  as \code{prod(1 - prior)}. The prior and null_wt are used to compute
+#'  the prior weights and null weight for SuSiE, where the prior weights
+#'  are conditional on the non-null.
 #' @param proposal_thresh Threshold for proposal acceptance. Default value
 #'  is 1e-6.
 #' @param grid Grid of values for scaled effect size prior variance.
@@ -39,7 +41,11 @@
 #'  \item{prior}{A p-vector of SNP prior probability of being causal}
 #'  \item{models}{A dataframe of high-probability models identified by DAP-S, together with their posterior probabilities}
 #'  \item{twas_weights}{A p-vector of TWAS weights for each SNP}
-#'  \item{info}{A list of information including signal clusters and stored model details}
+#'  \item{info}{A list of information including signal clusters and stored
+#'   model details. \code{info$model_index} lists the SNPs in each model
+#'   (same order as \code{models}) using 1-based SNP indices, with 0 for a
+#'   null effect slot. \code{info$reg_weights} gives the per-model regression
+#'   weights, named by 1-based SNP index (when \code{twas_weight = TRUE}).}
 #'  \item{sets}{A list of signal clusters or credible sets identified by DAP-S with the specified coverage level}
 #'  \item{variants}{A variant-level dataframe for FastENLOC-style input}
 #' }
@@ -78,11 +84,17 @@ daps <- function(
   y <- scale(y, center = TRUE, scale = FALSE)
   n <- nrow(X)
   p <- ncol(X)
+  snp_names <- colnames(X)
 
   if (is.null(prior)) prior <- rep(1 / p, p)
   if (is.null(null_wt)) null_wt <- prod(1 - prior)
+  if (null_wt < 0 || null_wt >= 1)
+    stop("Error: null_wt must be in [0, 1).\n")
   if (!is.null(coverage) && (coverage <= 0 || coverage > 1))
     stop("Error: coverage must be in (0, 1].\n")
+  if (!is.numeric(proposal_thresh) || length(proposal_thresh) != 1 ||
+      proposal_thresh <= 1e-9 || proposal_thresh >= 1)
+    stop("proposal_thresh must be a single value in (1e-9, 1).")
 
   susie_args <- list(
     X = X, y = y, L = L,
@@ -106,7 +118,7 @@ daps <- function(
     sigma2, sigma2_alpha
   )
 
-  output <- summarize(daps_fit, prior, min_abs_corr)
+  output <- summarize(daps_fit, prior, min_abs_corr, snp_names)
   output$sets <- get_set(output, coverage)
   output$variants <- get_enloc(output)
 
@@ -128,11 +140,13 @@ daps <- function(
 #' @param L Maximum number of causal SNPs allowed in the model.  Default is
 #'  min(10, p).
 #' @param standardize Standardize each column of X and y. Default is FALSE.
-#' @param prior SNP-level prior weights, given as a vector of
+#' @param prior Marginal SNP-level prior weights, given as a vector of
 #'  length p. Default is NULL which corresponds to uninformative weights.
-#' @param null_wt Null weight used in SuSiE, defined as the prior
+#' @param null_wt Null weight, defined as the prior
 #'  probability of no causal variants in the region. Default is calculated
-#'  as \code{prod(1 - prior)}.
+#'  as \code{prod(1 - prior)}. The prior and null_wt are used to compute
+#'  the prior weights and null weight for SuSiE, where the prior weights
+#'  are conditional on the non-null.
 #' @param estimate_residual_variance Estimate residual variance in SuSiE.
 #'  Default is TRUE.
 #' @param proposal_thresh Threshold for proposal acceptance. Default value
@@ -198,11 +212,17 @@ daps_ss <- function(
     Xty <- Xty / csd
   }
   p <- ncol(XtX)
+  snp_names <- colnames(XtX)
 
   if (is.null(prior)) prior <- rep(1 / p, p)
   if (is.null(null_wt)) null_wt <- prod(1 - prior)
+  if (null_wt < 0 || null_wt >= 1)
+    stop("Error: null_wt must be in [0, 1).\n")
   if (!is.null(coverage) && (coverage <= 0 || coverage > 1))
     stop("Error: coverage must be in (0, 1].\n")
+  if (!is.numeric(proposal_thresh) || length(proposal_thresh) != 1 ||
+      proposal_thresh <= 1e-9 || proposal_thresh >= 1)
+    stop("proposal_thresh must be a single value in (1e-9, 1).")
 
   susie_args <- list(
     XtX = XtX, Xty = Xty, yty = yty, n = n, L = L,
@@ -227,7 +247,7 @@ daps_ss <- function(
     sigma2, sigma2_alpha
   )
 
-  output <- summarize(daps_fit, prior, min_abs_corr)
+  output <- summarize(daps_fit, prior, min_abs_corr, snp_names)
   output$sets <- get_set(output, coverage)
   output$variants <- get_enloc(output)
 
@@ -249,11 +269,13 @@ daps_ss <- function(
 #'  together can be replaced by z.
 #' @param var_y Phenotypic variance, defined as y'y/(n-1). When not
 #'  provided, the algorithm works on standardized data.
-#' @param prior SNP-level prior weights, given as a vector of
+#' @param prior Marginal SNP-level prior weights, given as a vector of
 #'  length p. Default is NULL which corresponds to uninformative weights.
-#' @param null_wt Null weight used in SuSiE, defined as the prior
+#' @param null_wt Null weight, defined as the prior
 #'  probability of no causal variants in the region. Default is calculated
-#'  as \code{prod(1 - prior)}.
+#'  as \code{prod(1 - prior)}. The prior and null_wt are used to compute
+#'  the prior weights and null weight for SuSiE, where the prior weights
+#'  are conditional on the non-null.
 #' @param estimate_residual_variance Estimate residual variance in SuSiE.
 #'  Default is FALSE. If the in sample LD matrix is used, we recommend
 #'  setting this to TRUE.
@@ -309,6 +331,7 @@ daps_rss <- function(
     z <- bhat / shat
   }
   p <- length(z)
+  snp_names <- if (!is.null(names(z))) names(z) else colnames(R)
   if (!is.matrix(R) || nrow(R) != p || ncol(R) != p) {
     stop("'R' must be a p x p matrix, where p = length(z).")
   }
@@ -317,14 +340,14 @@ daps_rss <- function(
   if (is.null(n)) {
     XtX <- R
     Xty <- z
-    yty <- 1
-    n <- 2
+    yty <- 1e8
+    n <- 1e8
   } else {
     # when n is provided, we use PVE-adjusted z scores
     adj <- (n - 1) / (z^2 + n - 2)
     z <- sqrt(adj) * z
 
-    if (is.null(shat) && !is.null(var_y)) {
+    if (!is.null(shat) && !is.null(var_y)) {
       # var_y, shat and bhat are provided, results on original scale
       XtXdiag <- var_y * adj / (shat^2)
       XtX <- t(R * sqrt(XtXdiag)) * sqrt(XtXdiag)
@@ -338,6 +361,8 @@ daps_rss <- function(
       yty <- n - 1
     }
   }
+
+  dimnames(XtX) <- list(snp_names, snp_names)
 
   daps_args <- list(
     XtX = XtX, Xty = Xty, yty = yty, n = n,

@@ -33,12 +33,14 @@ min(10, p).}
 
 \item{standardize}{Standardize each column of X. Default is FALSE.}
 
-\item{prior}{SNP-level prior weights, given as a vector of
+\item{prior}{Marginal SNP-level prior weights, given as a vector of
 length p. Default is NULL which corresponds to uninformative weights.}
 
-\item{null_wt}{Null weight used in SuSiE, defined as the prior
+\item{null_wt}{Null weight, defined as the prior
 probability of no causal variants in the region. Default is calculated
-as \code{prod(1 - prior)}.}
+as \code{prod(1 - prior)}. The prior and null_wt are used to compute
+the prior weights and null weight for SuSiE, where the prior weights
+are conditional on the non-null.}
 
 \item{proposal_thresh}{Threshold for proposal acceptance. Default value
 is 1e-6.}
@@ -74,7 +76,11 @@ A list of DAP-S fine-mapping results.
 \item{prior}{A p-vector of SNP prior probability of being causal}
 \item{models}{A dataframe of high-probability models identified by DAP-S, together with their posterior probabilities}
 \item{twas_weights}{A p-vector of TWAS weights for each SNP}
-\item{info}{A list of information including signal clusters and stored model details}
+\item{info}{A list of information including signal clusters and stored
+model details. \code{info$model_index} lists the SNPs in each model
+(same order as \code{models}) using 1-based SNP indices, with 0 for a
+null effect slot. \code{info$reg_weights} gives the per-model regression
+weights, named by 1-based SNP index (when \code{twas_weight = TRUE}).}
 \item{sets}{A list of signal clusters or credible sets identified by DAP-S with the specified coverage level}
 \item{variants}{A variant-level dataframe for FastENLOC-style input}
 }
