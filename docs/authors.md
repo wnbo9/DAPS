@@ -11,14 +11,14 @@
 Source:
 [`DESCRIPTION`](https://github.com/wnbo9/DAPS/blob/HEAD/DESCRIPTION)
 
-Wang B, Wen X (2025). *DAPS: Deterministic Approximation of Posteriors*.
+Wang B, Wen X (2026). *DAPS: Deterministic Approximation of Posteriors*.
 R package version 1.0.0, https://github.com/wnbo9/DAPS,
 <https://wnbo9.github.io/DAPS/>.
 
     @Manual{,
       title = {DAPS: Deterministic Approximation of Posteriors},
       author = {Bo Wang and Xiaoquan Wen},
-      year = {2025},
+      year = {2026},
       note = {R package version 1.0.0, https://github.com/wnbo9/DAPS},
       url = {https://wnbo9.github.io/DAPS/},
     }

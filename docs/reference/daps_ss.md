@@ -18,9 +18,12 @@ daps_ss(
   estimate_residual_variance = TRUE,
   proposal_thresh = 1e-06,
   grid = c(0.04, 0.16, 0.64),
+  unmappable_effects = c("none", "inf"),
   twas_weight = FALSE,
   coverage = NULL,
   min_abs_corr = 0.5,
+  dedup = TRUE,
+  verbose = FALSE,
   ...
 )
 ```
@@ -55,14 +58,15 @@ daps_ss(
 
 - prior:
 
-  SNP-level prior weights, given as a vector of length p. Default is
-  NULL which corresponds to uninformative weights.
+  Marginal SNP-level prior weights, given as a vector of length p.
+  Default is NULL which corresponds to uninformative weights.
 
 - null_wt:
 
-  Null weight used in SuSiE, defined as the prior probability of no
-  causal variants in the region. Default is calculated as
-  `prod(1 - prior)`.
+  Null weight, defined as the prior probability of no causal variants in
+  the region. Default is calculated as `prod(1 - prior)`. The prior and
+  null_wt are used to compute the prior weights and null weight for
+  SuSiE, where the prior weights are conditional on the non-null.
 
 - estimate_residual_variance:
 
@@ -76,6 +80,11 @@ daps_ss(
 
   Grid of values for scaled effect size prior variance. Default is
   c(0.04, 0.16, 0.64).
+
+- unmappable_effects:
+
+  Method for handling unmapped effects. Options are "none", "inf".
+  Default is "none".
 
 - twas_weight:
 
@@ -92,6 +101,15 @@ daps_ss(
   Minimum absolute correlation allowed in a signal cluster or credible
   set. Default is 0.5, which corresponds to a squared correlation of
   0.25.
+
+- dedup:
+
+  Whether to remove duplicate effects (effects with the same top 5
+  SNPs). Default is TRUE.
+
+- verbose:
+
+  Whether to print progress messages. Default is FALSE.
 
 - ...:
 
@@ -149,7 +167,7 @@ rst$sets
 #> [1] 0.5
 #> 
 #> $requested_coverage
-#> NULL
+#> [1] "signal clusters"
 #> 
 daps_plot(rst)
 ```

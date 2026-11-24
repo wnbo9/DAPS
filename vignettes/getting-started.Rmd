@@ -10,44 +10,154 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  dpi = 150,
+  out.width = "100%"
 )
 ```
 
-## DAPS with Individual-level Data
-```{r}
-# Load the DAPS package
-library(DAPS)
+## Installation
 
-# Run DAP-S fine-mapping
-set.seed(1234)
-n <- 1000
-p <- 1000
-beta <- rep(0, p)
-beta[c(1, 200, 500, 800)] <- 1
-X <- matrix(rnorm(n*p), nrow = n, ncol = p)
-X <- scale(X, center = TRUE, scale = TRUE)
-y <- X %*% beta + rnorm(n)
-rst <- daps(X, y, L = 5)
+Install the development version of `DAPS` from GitHub.
+
+```{r, eval = FALSE}
+# install the package via devtools
+install.packages("devtools")
+devtools::install_github("wnbo9/DAPS")
+# load the package
+library(DAPS)
+```
+
+```{r, include = FALSE}
+library(DAPS)
+```
+
+## DAPS with Individual-level Data
+
+### Example data
+
+We use the `N3finemapping` data from `susieR`: genotypes of
+`r nrow(susieR::N3finemapping$X)` individuals at
+`r ncol(susieR::N3finemapping$X)` SNPs in one region, with a simulated
+phenotype that has three causal SNPs.
+
+```{r}
+data(N3finemapping, package = "susieR")
+X <- N3finemapping$X
+y <- N3finemapping$Y[, 1]
+n <- nrow(X)
+
+true_causal <- which(N3finemapping$true_coef[, 1] != 0)
+true_causal
+```
+
+### Running DAP-S
+
+`daps()` takes the genotype matrix `X` and phenotype `y`. `L` is the
+maximum number of causal effects allowed in the region.
+
+```{r}
+rst <- daps(X, y, L = 10)
+names(rst)
+```
+
+The result is a list with the following elements:
+
+| Element | Description |
+|---|---|
+| `pip` | Variant-level posterior inclusion probabilities |
+| `prior` | Variant-level prior inclusion probabilities |
+| `models` | Plausible model configurations and their posterior probabilities |
+| `twas_weights` | TWAS weights (default is NULL) |
+| `info` | Additional details: complete signal clusters, CPIP, per-signal PIPs, stored models and LD |
+| `sets` | Desired signal clusters (default) or credible sets |
+| `variants` | Variant-level table of SNPs in each signal cluster or credible set (fastENLOC-style) |
+
+The `rst$pip` gives the posterior probability of each variant being causal.
+```{r}
+head(rst$pip)
+data.frame(pip = rst$pip[true_causal], row.names = true_causal)
+```
+
+The `rst$models` lists the plausible model configurations evaluated by DAP-S, with
+their log10 Bayes factor, log10 prior, log10 unnormalized posterior, and
+posterior model probability:
+```{r}
+head(rst$models)
+```
+
+
+### Signal clusters and credible sets
+
+By default (`coverage = NULL`), `DAPS` reports **signal clusters**. A signal cluster is a group of correlated SNPs that together represent a single association signal: the data show that one of them is likely causal, but cannot tell which. Each cluster contains SNPs whose pairwise absolute correlation is at least `min_abs_corr` (default 0.5).
+
+```{r}
 rst$sets
+```
+
+For signal clusters, `coverage` is the cluster PIP (CPIP): the posterior
+probability that the cluster contains a causal SNP. For credible sets,
+it is instead the summed within-signal PIP of the SNPs in the set. 
+`daps_plot()` visualizes the results. The top panel shows the PIP of each
+SNP, and the bottom panel shows the signal clusters (or credible sets)
+with their coverage.
+
+```{r, fig.alt = "DAPS PIP and signal cluster plot"}
+daps_plot(rst)
+```
+
+Signal clusters enable the construction of credible sets at any level
+$\rho$, using `get_set()` without refitting. For example, the 95%
+credible sets ($\rho = 0.95$) are:
+
+```{r, fig.alt = "DAPS PIP and 95% credible set plot"}
+rst_cs <- rst
+rst_cs$sets <- get_set(rst, coverage = 0.95)
+rst_cs$sets
+daps_plot(rst_cs)
 ```
 
 ## DAPS with Sufficient Statistics
-DAPS is also designed to also work efficiently using **sufficient statistics**, which includes $\boldsymbol{X}^T\boldsymbol{X}, \;\boldsymbol{X}^T\boldsymbol{y}, \; \boldsymbol{y}^T\boldsymbol{y}, \; n$.
+
+`DAPS` can also run on **sufficient statistics**:
+$\boldsymbol{X}^T\boldsymbol{X}$, $\boldsymbol{X}^T\boldsymbol{y}$,
+$\boldsymbol{y}^T\boldsymbol{y}$ and $n$. This is useful
+when individual-level data cannot be shared. Here we compute them from centered `X` and `y`.
+
 ```{r}
-XtX <- crossprod(X)
-Xty <- as.numeric(crossprod(X, y))
-yty <- sum(y^2)
-rst <- daps_ss(XtX, Xty, yty, n, L = 5)
-rst$sets
+X_c <- scale(X, center = TRUE, scale = FALSE)
+y_c <- y - mean(y)
+XtX <- crossprod(X_c)
+Xty <- as.numeric(crossprod(X_c, y_c))
+yty <- sum(y_c^2)
+
+rst_ss <- daps_ss(XtX, Xty, yty, n, L = 10)
+rst_ss$sets$sets
 ```
 
-## DAPS with Regression Summary Statistics
-A common scenario in genetics is having only GWAS **regression summary statistics** (e.g., Z-scores and LD matrices). We can use these to recover the necessary inputs for DAP-S fine-mapping.
+
+## DAPS with Summary Statistics
+
+A common scenario in genetics is having only GWAS **summary statistics**.
+`daps_rss()` takes z-scores `z` and an LD matrix `R`, along with the
+sample size `n` if available. Alternatively, effect size estimates `bhat`
+and their standard errors `shat` can be supplied instead of `z`.
+
 ```{r}
-rss <- susieR::univariate_regression(X, y)
-z <- rss$betahat / rss$sebetahat
+ss <- susieR::univariate_regression(X, y)
+z <- ss$betahat / ss$sebetahat
 R <- cor(X)
-rst <- daps_rss(z = z, R = R, n = n)
-rst$sets
+
+rst_rss <- daps_rss(z = z, R = R, n = n, L = 10)
+rst_rss$sets$sets
+```
+
+
+
+## Session information
+
+```{r}
+sessionInfo()
 ```

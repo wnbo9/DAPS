@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Getting started with DAPS • DAPS</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with DAPS">
 </head>
 <body>
@@ -60,145 +60,313 @@
     
     
 <div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<p>Install the development version of <code>DAPS</code> from GitHub.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install the package via devtools</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"wnbo9/DAPS"</span><span class="op">)</span></span>
+<span><span class="co"># load the package</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wnbo9.github.io/DAPS/">DAPS</a></span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="daps-with-individual-level-data">DAPS with Individual-level Data<a class="anchor" aria-label="anchor" href="#daps-with-individual-level-data"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Load the DAPS package</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wnbo9.github.io/DAPS/">DAPS</a></span><span class="op">)</span></span>
+<div class="section level3">
+<h3 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
+</h3>
+<p>We use the <code>N3finemapping</code> data from <code>susieR</code>:
+genotypes of 574 individuals at 1001 SNPs in one region, with a
+simulated phenotype that has three causal SNPs.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">N3finemapping</span>, package <span class="op">=</span> <span class="st">"susieR"</span><span class="op">)</span></span>
+<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">N3finemapping</span><span class="op">$</span><span class="va">X</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">N3finemapping</span><span class="op">$</span><span class="va">Y</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Run DAP-S fine-mapping</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1234</span><span class="op">)</span></span>
-<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">1000</span></span>
-<span><span class="va">beta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">p</span><span class="op">)</span></span>
-<span><span class="va">beta</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">200</span>, <span class="fl">500</span>, <span class="fl">800</span><span class="op">)</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">*</span><span class="va">p</span><span class="op">)</span>, nrow <span class="op">=</span> <span class="va">n</span>, ncol <span class="op">=</span> <span class="va">p</span><span class="op">)</span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">X</span>, center <span class="op">=</span> <span class="cn">TRUE</span>, scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">X</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">beta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span>
-<span><span class="va">rst</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/daps.html">daps</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, L <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="va">rst</span><span class="op">$</span><span class="va">sets</span></span>
+<span><span class="va">true_causal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">N3finemapping</span><span class="op">$</span><span class="va">true_coef</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span></span>
+<span><span class="va">true_causal</span></span>
+<span><span class="co">#&gt; [1] 403 653 773</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="running-dap-s">Running DAP-S<a class="anchor" aria-label="anchor" href="#running-dap-s"></a>
+</h3>
+<p><code><a href="../reference/daps.html">daps()</a></code> takes the genotype matrix <code>X</code> and
+phenotype <code>y</code>. <code>L</code> is the maximum number of causal
+effects allowed in the region.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rst</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/daps.html">daps</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span>, L <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">rst</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "pip"          "prior"        "models"       "twas_weights" "info"        </span></span>
+<span><span class="co">#&gt; [6] "sets"         "variants"</span></span></code></pre></div>
+<p>The result is a list with the following elements:</p>
+<table class="table">
+<colgroup>
+<col width="50%">
+<col width="50%">
+</colgroup>
+<thead><tr class="header">
+<th>Element</th>
+<th>Description</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td><code>pip</code></td>
+<td>Variant-level posterior inclusion probabilities</td>
+</tr>
+<tr class="even">
+<td><code>prior</code></td>
+<td>Variant-level prior inclusion probabilities</td>
+</tr>
+<tr class="odd">
+<td><code>models</code></td>
+<td>Plausible model configurations and their posterior
+probabilities</td>
+</tr>
+<tr class="even">
+<td><code>twas_weights</code></td>
+<td>TWAS weights (default is NULL)</td>
+</tr>
+<tr class="odd">
+<td><code>info</code></td>
+<td>Additional details: complete signal clusters, CPIP, per-signal PIPs,
+stored models and LD</td>
+</tr>
+<tr class="even">
+<td><code>sets</code></td>
+<td>Desired signal clusters (default) or credible sets</td>
+</tr>
+<tr class="odd">
+<td><code>variants</code></td>
+<td>Variant-level table of SNPs in each signal cluster or credible set
+(fastENLOC-style)</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>rst$pip</code> gives the posterior probability of each
+variant being causal.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">rst</span><span class="op">$</span><span class="va">pip</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 2.373537e-18 2.448098e-19 5.223550e-19 1.030485e-18 3.586387e-19</span></span>
+<span><span class="co">#&gt; [6] 6.906588e-19</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>pip <span class="op">=</span> <span class="va">rst</span><span class="op">$</span><span class="va">pip</span><span class="op">[</span><span class="va">true_causal</span><span class="op">]</span>, row.names <span class="op">=</span> <span class="va">true_causal</span><span class="op">)</span></span>
+<span><span class="co">#&gt;            pip</span></span>
+<span><span class="co">#&gt; 403 0.03128841</span></span>
+<span><span class="co">#&gt; 653 0.99965846</span></span>
+<span><span class="co">#&gt; 773 0.59883743</span></span></code></pre></div>
+<p>The <code>rst$models</code> lists the plausible model configurations
+evaluated by DAP-S, with their log10 Bayes factor, log10 prior, log10
+unnormalized posterior, and posterior model probability:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">rst</span><span class="op">$</span><span class="va">models</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             model   log_bf log_prior log_posterior posterior_prob</span></span>
+<span><span class="co">#&gt; 1 773 + 653 + 386 22.55530 -9.434512     13.120788   4.660885e-02</span></span>
+<span><span class="co">#&gt; 2 777 + 653 + 386 22.65183 -9.434512     13.217320   5.821041e-02</span></span>
+<span><span class="co">#&gt; 3 794 + 653 + 386 19.95270 -9.434512     10.518184   1.163763e-04</span></span>
+<span><span class="co">#&gt; 4 773 + 654 + 386 18.99990 -9.434512      9.565391   1.297395e-05</span></span>
+<span><span class="co">#&gt; 5 777 + 654 + 386 19.17763 -9.434512      9.743114   1.953416e-05</span></span>
+<span><span class="co">#&gt; 6 773 + 622 + 386 18.44675 -9.434512      9.012243   3.630145e-06</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="signal-clusters-and-credible-sets">Signal clusters and credible sets<a class="anchor" aria-label="anchor" href="#signal-clusters-and-credible-sets"></a>
+</h3>
+<p>By default (<code>coverage = NULL</code>), <code>DAPS</code> reports
+<strong>signal clusters</strong>. A signal cluster is a group of
+correlated SNPs that together represent a single association signal: the
+data show that one of them is likely causal, but cannot tell which. Each
+cluster contains SNPs whose pairwise absolute correlation is at least
+<code>min_abs_corr</code> (default 0.5).</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rst</span><span class="op">$</span><span class="va">sets</span></span>
 <span><span class="co">#&gt; $sets</span></span>
 <span><span class="co">#&gt; $sets$S1</span></span>
-<span><span class="co">#&gt; [1] 800</span></span>
+<span><span class="co">#&gt; [1] 773 777 794</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $sets$S2</span></span>
-<span><span class="co">#&gt; [1] 200</span></span>
+<span><span class="co">#&gt; [1] 653 654</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $sets$S3</span></span>
-<span><span class="co">#&gt; [1] 500</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sets$S4</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt;  [1] 386 381 396 391 379 384 383 405 408 389 387 388 404 403 374 399 373 400 392</span></span>
+<span><span class="co">#&gt; [20] 401 407 362 398 415 397 365 372 368 360 366 367 361 419 410 409 349 424 402</span></span>
+<span><span class="co">#&gt; [39] 369 347 275</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $purity</span></span>
 <span><span class="co">#&gt;    min.abs.corr mean.abs.corr median.abs.corr</span></span>
-<span><span class="co">#&gt; S1            1             1               1</span></span>
-<span><span class="co">#&gt; S2            1             1               1</span></span>
-<span><span class="co">#&gt; S3            1             1               1</span></span>
-<span><span class="co">#&gt; S4            1             1               1</span></span>
+<span><span class="co">#&gt; S1    0.8092507     0.8701495       0.8196254</span></span>
+<span><span class="co">#&gt; S2    0.5586652     0.5586652       0.5586652</span></span>
+<span><span class="co">#&gt; S3    0.5190701     0.9287444       0.9515526</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $set_index</span></span>
-<span><span class="co">#&gt; [1] 1 2 3 4</span></span>
+<span><span class="co">#&gt; [1] 1 2 3</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $coverage</span></span>
-<span><span class="co">#&gt; [1] 1 1 1 1</span></span>
+<span><span class="co">#&gt; [1] 1.0000000 0.9997981 0.9990981</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $min_abs_corr</span></span>
 <span><span class="co">#&gt; [1] 0.5</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $requested_coverage</span></span>
-<span><span class="co">#&gt; NULL</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "signal clusters"</span></span></code></pre></div>
+<p>For signal clusters, <code>coverage</code> is the cluster PIP (CPIP):
+the posterior probability that the cluster contains a causal SNP. For
+credible sets, it is instead the summed within-signal PIP of the SNPs in
+the set. <code><a href="../reference/daps_plot.html">daps_plot()</a></code> visualizes the results. The top panel
+shows the PIP of each SNP, and the bottom panel shows the signal
+clusters (or credible sets) with their coverage.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/daps_plot.html">daps_plot</a></span><span class="op">(</span><span class="va">rst</span><span class="op">)</span></span></code></pre></div>
+<p><img src="getting-started_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="DAPS PIP and signal cluster plot" width="100%"></p>
+<p>Signal clusters enable the construction of credible sets at any level
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ρ</mi><annotation encoding="application/x-tex">\rho</annotation></semantics></math>,
+using <code><a href="../reference/get_set.html">get_set()</a></code> without refitting. For example, the 95%
+credible sets
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ρ</mi><mo>=</mo><mn>0.95</mn></mrow><annotation encoding="application/x-tex">\rho = 0.95</annotation></semantics></math>)
+are:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">rst_cs</span> <span class="op">&lt;-</span> <span class="va">rst</span></span>
+<span><span class="va">rst_cs</span><span class="op">$</span><span class="va">sets</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/get_set.html">get_set</a></span><span class="op">(</span><span class="va">rst</span>, coverage <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
+<span><span class="va">rst_cs</span><span class="op">$</span><span class="va">sets</span></span>
+<span><span class="co">#&gt; $sets</span></span>
+<span><span class="co">#&gt; $sets$S1</span></span>
+<span><span class="co">#&gt; [1] 773 777</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sets$S2</span></span>
+<span><span class="co">#&gt; [1] 653</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sets$S3</span></span>
+<span><span class="co">#&gt;  [1] 386 381 396 391 379 384 383 405 408 389 387 388 404 403 374 399 373 400 392</span></span>
+<span><span class="co">#&gt; [20] 401 407 362 398 415 397 365 372</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $purity</span></span>
+<span><span class="co">#&gt;    min.abs.corr mean.abs.corr median.abs.corr</span></span>
+<span><span class="co">#&gt; S1    0.9815726     0.9815726       0.9815726</span></span>
+<span><span class="co">#&gt; S2    1.0000000     1.0000000       1.0000000</span></span>
+<span><span class="co">#&gt; S3    0.8686309     0.9640176       0.9720711</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $set_index</span></span>
+<span><span class="co">#&gt; [1] 1 2 3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $coverage</span></span>
+<span><span class="co">#&gt; [1] 0.9987765 0.9996585 0.9523328</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $min_abs_corr</span></span>
+<span><span class="co">#&gt; [1] 0.5</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $requested_coverage</span></span>
+<span><span class="co">#&gt; [1] 0.95</span></span>
+<span><span class="fu"><a href="../reference/daps_plot.html">daps_plot</a></span><span class="op">(</span><span class="va">rst_cs</span><span class="op">)</span></span></code></pre></div>
+<p><img src="getting-started_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="DAPS PIP and 95% credible set plot" width="100%"></p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="daps-with-sufficient-statistics">DAPS with Sufficient Statistics<a class="anchor" aria-label="anchor" href="#daps-with-sufficient-statistics"></a>
 </h2>
-<p>DAPS is also designed to also work efficiently using
-<strong>sufficient statistics</strong>, which includes
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>𝐗</mi><mi>T</mi></msup><mi>𝐗</mi><mo>,</mo><mspace width="0.278em"></mspace><msup><mi>𝐗</mi><mi>T</mi></msup><mi>𝐲</mi><mo>,</mo><mspace width="0.278em"></mspace><msup><mi>𝐲</mi><mi>T</mi></msup><mi>𝐲</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>n</mi></mrow><annotation encoding="application/x-tex">\boldsymbol{X}^T\boldsymbol{X}, \;\boldsymbol{X}^T\boldsymbol{y}, \; \boldsymbol{y}^T\boldsymbol{y}, \; n</annotation></semantics></math>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">XtX</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
-<span><span class="va">Xty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">yty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">rst</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/daps_ss.html">daps_ss</a></span><span class="op">(</span><span class="va">XtX</span>, <span class="va">Xty</span>, <span class="va">yty</span>, <span class="va">n</span>, L <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="va">rst</span><span class="op">$</span><span class="va">sets</span></span>
-<span><span class="co">#&gt; $sets</span></span>
-<span><span class="co">#&gt; $sets$S1</span></span>
-<span><span class="co">#&gt; [1] 800</span></span>
+<p><code>DAPS</code> can also run on <strong>sufficient
+statistics</strong>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>𝐗</mi><mi>T</mi></msup><mi>𝐗</mi></mrow><annotation encoding="application/x-tex">\boldsymbol{X}^T\boldsymbol{X}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>𝐗</mi><mi>T</mi></msup><mi>𝐲</mi></mrow><annotation encoding="application/x-tex">\boldsymbol{X}^T\boldsymbol{y}</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>𝐲</mi><mi>T</mi></msup><mi>𝐲</mi></mrow><annotation encoding="application/x-tex">\boldsymbol{y}^T\boldsymbol{y}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
+This is useful when individual-level data cannot be shared. Here we
+compute them from centered <code>X</code> and <code>y</code>.</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">X_c</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html" class="external-link">scale</a></span><span class="op">(</span><span class="va">X</span>, center <span class="op">=</span> <span class="cn">TRUE</span>, scale <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">y_c</span> <span class="op">&lt;-</span> <span class="va">y</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">XtX</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X_c</span><span class="op">)</span></span>
+<span><span class="va">Xty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/crossprod.html" class="external-link">crossprod</a></span><span class="op">(</span><span class="va">X_c</span>, <span class="va">y_c</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">yty</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">y_c</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">rst_ss</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/daps_ss.html">daps_ss</a></span><span class="op">(</span><span class="va">XtX</span>, <span class="va">Xty</span>, <span class="va">yty</span>, <span class="va">n</span>, L <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">rst_ss</span><span class="op">$</span><span class="va">sets</span><span class="op">$</span><span class="va">sets</span></span>
+<span><span class="co">#&gt; $S1</span></span>
+<span><span class="co">#&gt; [1] 773 777 794</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sets$S2</span></span>
-<span><span class="co">#&gt; [1] 200</span></span>
+<span><span class="co">#&gt; $S2</span></span>
+<span><span class="co">#&gt; [1] 653 654</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sets$S3</span></span>
-<span><span class="co">#&gt; [1] 500</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sets$S4</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $purity</span></span>
-<span><span class="co">#&gt;    min.abs.corr mean.abs.corr median.abs.corr</span></span>
-<span><span class="co">#&gt; S1            1             1               1</span></span>
-<span><span class="co">#&gt; S2            1             1               1</span></span>
-<span><span class="co">#&gt; S3            1             1               1</span></span>
-<span><span class="co">#&gt; S4            1             1               1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $set_index</span></span>
-<span><span class="co">#&gt; [1] 1 2 3 4</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $coverage</span></span>
-<span><span class="co">#&gt; [1] 1 1 1 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $min_abs_corr</span></span>
-<span><span class="co">#&gt; [1] 0.5</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $requested_coverage</span></span>
-<span><span class="co">#&gt; NULL</span></span></code></pre></div>
+<span><span class="co">#&gt; $S3</span></span>
+<span><span class="co">#&gt;  [1] 381 386 396 391 379 384 383 405 408 389 387 388 404 403 374 399 373 400 392</span></span>
+<span><span class="co">#&gt; [20] 401 407 362 398 415 397 365 372 368 360 366 367 361 419 410 409 349 424 402</span></span>
+<span><span class="co">#&gt; [39] 369 347 275</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="daps-with-regression-summary-statistics">DAPS with Regression Summary Statistics<a class="anchor" aria-label="anchor" href="#daps-with-regression-summary-statistics"></a>
+<h2 id="daps-with-summary-statistics">DAPS with Summary Statistics<a class="anchor" aria-label="anchor" href="#daps-with-summary-statistics"></a>
 </h2>
-<p>A common scenario in genetics is having only GWAS <strong>regression
-summary statistics</strong> (e.g., Z-scores and LD matrices). We can use
-these to recover the necessary inputs for DAP-S fine-mapping.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">rss</span> <span class="op">&lt;-</span> <span class="fu">susieR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/susieR/man/univariate_regression.html" class="external-link">univariate_regression</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span></span>
-<span><span class="va">z</span> <span class="op">&lt;-</span> <span class="va">rss</span><span class="op">$</span><span class="va">betahat</span> <span class="op">/</span> <span class="va">rss</span><span class="op">$</span><span class="va">sebetahat</span></span>
+<p>A common scenario in genetics is having only GWAS <strong>summary
+statistics</strong>. <code><a href="../reference/daps_rss.html">daps_rss()</a></code> takes z-scores
+<code>z</code> and an LD matrix <code>R</code>, along with the sample
+size <code>n</code> if available. Alternatively, effect size estimates
+<code>bhat</code> and their standard errors <code>shat</code> can be
+supplied instead of <code>z</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">ss</span> <span class="op">&lt;-</span> <span class="fu">susieR</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/susieR/man/univariate_regression.html" class="external-link">univariate_regression</a></span><span class="op">(</span><span class="va">X</span>, <span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">z</span> <span class="op">&lt;-</span> <span class="va">ss</span><span class="op">$</span><span class="va">betahat</span> <span class="op">/</span> <span class="va">ss</span><span class="op">$</span><span class="va">sebetahat</span></span>
 <span><span class="va">R</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
-<span><span class="va">rst</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/daps_rss.html">daps_rss</a></span><span class="op">(</span>z <span class="op">=</span> <span class="va">z</span>, R <span class="op">=</span> <span class="va">R</span>, n <span class="op">=</span> <span class="va">n</span><span class="op">)</span></span>
-<span><span class="va">rst</span><span class="op">$</span><span class="va">sets</span></span>
-<span><span class="co">#&gt; $sets</span></span>
-<span><span class="co">#&gt; $sets$S1</span></span>
-<span><span class="co">#&gt; [1] 800</span></span>
+<span></span>
+<span><span class="va">rst_rss</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/daps_rss.html">daps_rss</a></span><span class="op">(</span>z <span class="op">=</span> <span class="va">z</span>, R <span class="op">=</span> <span class="va">R</span>, n <span class="op">=</span> <span class="va">n</span>, L <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
+<span><span class="va">rst_rss</span><span class="op">$</span><span class="va">sets</span><span class="op">$</span><span class="va">sets</span></span>
+<span><span class="co">#&gt; $S1</span></span>
+<span><span class="co">#&gt; [1] 773 777 794 800 776</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sets$S2</span></span>
-<span><span class="co">#&gt; [1] 200</span></span>
+<span><span class="co">#&gt; $S2</span></span>
+<span><span class="co">#&gt; [1] 653 654</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sets$S3</span></span>
-<span><span class="co">#&gt; [1] 500</span></span>
+<span><span class="co">#&gt; $S3</span></span>
+<span><span class="co">#&gt;  [1] 381 386 396 391 379 383 384 405 408 389 387 388 403 404 374 399 373 400 392</span></span>
+<span><span class="co">#&gt; [20] 401 407 362 398 415 397 365 372 368 360 366 367 361 419 410 409 349 424 402</span></span>
+<span><span class="co">#&gt; [39] 369 347 275</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
+</h2>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; R version 4.4.2 (2024-10-31)</span></span>
+<span><span class="co">#&gt; Platform: aarch64-apple-darwin20</span></span>
+<span><span class="co">#&gt; Running under: macOS 26.5.1</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $sets$S4</span></span>
-<span><span class="co">#&gt; [1] 1</span></span>
+<span><span class="co">#&gt; Matrix products: default</span></span>
+<span><span class="co">#&gt; BLAS:   /System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib </span></span>
+<span><span class="co">#&gt; LAPACK: /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.0</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; locale:</span></span>
+<span><span class="co">#&gt; [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $purity</span></span>
-<span><span class="co">#&gt;    min.abs.corr mean.abs.corr median.abs.corr</span></span>
-<span><span class="co">#&gt; S1            1             1               1</span></span>
-<span><span class="co">#&gt; S2            1             1               1</span></span>
-<span><span class="co">#&gt; S3            1             1               1</span></span>
-<span><span class="co">#&gt; S4            1             1               1</span></span>
+<span><span class="co">#&gt; time zone: America/Detroit</span></span>
+<span><span class="co">#&gt; tzcode source: internal</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $set_index</span></span>
-<span><span class="co">#&gt; [1] 1 2 3 4</span></span>
+<span><span class="co">#&gt; attached base packages:</span></span>
+<span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $coverage</span></span>
-<span><span class="co">#&gt; [1] 1 1 1 1</span></span>
+<span><span class="co">#&gt; other attached packages:</span></span>
+<span><span class="co">#&gt; [1] DAPS_1.0.0</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $min_abs_corr</span></span>
-<span><span class="co">#&gt; [1] 0.5</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $requested_coverage</span></span>
-<span><span class="co">#&gt; NULL</span></span></code></pre></div>
+<span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span><span class="co">#&gt;  [1] sass_0.5.0            generics_0.1.4        lattice_0.22-6       </span></span>
+<span><span class="co">#&gt;  [4] digest_0.6.39         magrittr_2.0.5        evaluate_1.0.5       </span></span>
+<span><span class="co">#&gt;  [7] grid_4.4.2            RColorBrewer_1.1-3    fastmap_1.2.0        </span></span>
+<span><span class="co">#&gt; [10] plyr_1.8.9            jsonlite_2.0.0        Matrix_1.7-1         </span></span>
+<span><span class="co">#&gt; [13] reshape_0.8.10        mixsqp_0.3-54         scales_1.4.0         </span></span>
+<span><span class="co">#&gt; [16] textshaping_0.4.0     jquerylib_0.1.4       cli_3.6.6            </span></span>
+<span><span class="co">#&gt; [19] rlang_1.3.0           zigg_0.0.2            crayon_1.5.3         </span></span>
+<span><span class="co">#&gt; [22] susieR_0.15.0         withr_3.0.3           cachem_1.1.0         </span></span>
+<span><span class="co">#&gt; [25] yaml_2.3.12           otel_0.3.0            tools_4.4.2          </span></span>
+<span><span class="co">#&gt; [28] dplyr_1.2.1           ggplot2_4.0.4         Rfast_2.1.5.2        </span></span>
+<span><span class="co">#&gt; [31] vctrs_0.7.3           R6_2.6.1              matrixStats_1.5.0    </span></span>
+<span><span class="co">#&gt; [34] lifecycle_1.0.5       fs_2.1.0              htmlwidgets_1.6.4    </span></span>
+<span><span class="co">#&gt; [37] ragg_1.5.0            irlba_2.4.1           pkgconfig_2.0.3      </span></span>
+<span><span class="co">#&gt; [40] desc_1.4.3            mr.ash.alpha_0.1-43   pkgdown_2.2.0        </span></span>
+<span><span class="co">#&gt; [43] RcppParallel_5.1.11-2 pillar_1.11.1         bslib_0.12.0         </span></span>
+<span><span class="co">#&gt; [46] gtable_0.3.6          glue_1.8.1            Rcpp_1.1.2           </span></span>
+<span><span class="co">#&gt; [49] systemfonts_1.1.0     xfun_0.62             tibble_3.3.1         </span></span>
+<span><span class="co">#&gt; [52] tidyselect_1.2.1      rstudioapi_0.17.1     knitr_1.52           </span></span>
+<span><span class="co">#&gt; [55] farver_2.1.2          htmltools_0.5.9       patchwork_1.3.2      </span></span>
+<span><span class="co">#&gt; [58] labeling_0.4.3        rmarkdown_2.32        compiler_4.4.2       </span></span>
+<span><span class="co">#&gt; [61] S7_1.0.0</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

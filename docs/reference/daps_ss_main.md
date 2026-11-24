@@ -15,7 +15,9 @@ daps_ss_main(
   proposal_thresh,
   grid,
   twas_weight,
-  min_abs_corr
+  min_abs_corr,
+  sigma2,
+  sigma2_alpha
 )
 ```
 
@@ -60,6 +62,14 @@ daps_ss_main(
 - min_abs_corr:
 
   Minimum absolute correlation for TWAS weights (scalar)
+
+- sigma2:
+
+  Residual variance estimate from SuSiE (scalar; used for inf or ash)
+
+- sigma2_alpha:
+
+  Estimated variance of small effect sizes (scalar; used for inf or ash)
 
 ## Value
 

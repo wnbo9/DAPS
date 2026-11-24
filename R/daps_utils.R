@@ -230,6 +230,7 @@ get_set <- function(output, coverage) {
 #'
 #' @param output A list of DAP-S fine-mapping results.
 #' @return A data.frame with columns: SC_ID, SNP_ID, PIP.
+#' @keywords internal
 #' @export
 get_enloc <- function(output) {
 

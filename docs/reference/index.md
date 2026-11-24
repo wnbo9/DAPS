@@ -16,5 +16,3 @@
   : DAPS_SS main function in Rcpp
 - [`get_set()`](https://wnbo9.github.io/DAPS/reference/get_set.md) :
   DAP-S fine-mapping getting signal clusters or credible sets
-- [`get_enloc()`](https://wnbo9.github.io/DAPS/reference/get_enloc.md) :
-  DAP-S variant-level table for eQTL/enloc-style outputs

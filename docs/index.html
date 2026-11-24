@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>DAPS • DAPS</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="DAPS">
 <meta name="description" content="DAPS implements the DAP-S algorithm for Bayesian genetic fine-mapping, integrating SuSiE’s variational approximation with deterministic posterior computation to identify causal variants and construct interpretable signal clusters.">
 <meta property="og:description" content="DAPS implements the DAP-S algorithm for Bayesian genetic fine-mapping, integrating SuSiE’s variational approximation with deterministic posterior computation to identify causal variants and construct interpretable signal clusters.">
@@ -47,10 +47,10 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="daps-deterministic-approximation-of-posteriors">DAPS: Deterministic Approximation of Posteriors<a class="anchor" aria-label="anchor" href="#daps-deterministic-approximation-of-posteriors"></a>
+<div class="page-header"><h1 id="daps">DAPS<a class="anchor" aria-label="anchor" href="#daps"></a>
 </h1></div>
 <div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+<h2 id="deterministic-approximation-of-posteriors">Deterministic Approximation of Posteriors<a class="anchor" aria-label="anchor" href="#deterministic-approximation-of-posteriors"></a>
 </h2>
 <p><code>DAPS</code> is an R package implementing the <strong>DAP-S</strong> (Deterministic Approximation of Posteriors) algorithm for Bayesian genetic fine-mapping. DAP-S combines the computational efficiency of SuSiE’s variational approximation with the accuracy and interpretability of Bayesian Variable Selection Regression (BVSR) model using the DAP framework.</p>
 <p>The method provides a <strong>fast, scalable, and well-calibrated</strong> approach for identifying causal genetic variants and constructing <strong>interpretable signal clusters</strong>, which enable flexible construction of credible sets.</p>
@@ -61,7 +61,7 @@
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install the package via devtools</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
-<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"wnbo9/DAPS"</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/install-deprecated.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"wnbo9/DAPS"</span><span class="op">)</span></span>
 <span><span class="co"># load the package</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wnbo9.github.io/DAPS/">DAPS</a></span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -71,17 +71,17 @@
 <p>See the <a href="https://wnbo9.github.io/DAPS/articles/index.html">vignettes</a> for a quick start and worked examples.</p>
 </div>
 <div class="section level2">
-<h2 id="blas-acceleration">BLAS acceleration<a class="anchor" aria-label="anchor" href="#blas-acceleration"></a>
+<h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
 </h2>
-<p><code>DAPS</code> relies on linear algebra operations. When linked against an optimized BLAS implementation-such as <strong>OpenBLAS</strong>, <strong>Intel MKL</strong>, and <strong>Apple’s Accelerate-framework</strong>-<code>DAPS</code> can be substantially faster than when using the reference (Netlib) BLAS shipped with base R. Most modern R installations already use an optimized BLAS, but performance can vary across systems. You can check which BLAS library your R session is using with:</p>
+<p><code>DAPS</code> requires R (&gt;= 4.0.0), susieR (&gt;= 0.15.0), Rcpp (&gt;= 1.1.0), RcppArmadillo, Matrix, Rfast, ggplot2 and patchwork.</p>
+<p>We recommend running <code>DAPS</code> with an optimized BLAS library, such as <strong>OpenBLAS</strong>, <strong>Intel MKL</strong>, or <strong>Apple’s Accelerate framework</strong>, which can be substantially faster than the reference BLAS shipped with R. Check your BLAS:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>A simple benchmark to verify that an optimized BLAS in is use:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>   <span class="co"># see the "BLAS:" and "LAPACK:" lines</span></span></code></pre></div>
+<p>A quick benchmark: an elapsed time of about 1 second or less suggests an optimized BLAS is in use.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m</span> <span class="op">&lt;-</span> <span class="fl">5000</span></span>
 <span><span class="va">A</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">m</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span>, <span class="va">m</span>, <span class="va">m</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="va">A</span> <span class="op"><a href="https://rdrr.io/r/base/matmult.html" class="external-link">%*%</a></span> <span class="va">A</span><span class="op">)</span></span></code></pre></div>
-<p>As a rough guideline, an elapsed time on the order of ~1 second indicates that your R installation is likely using an optimized BLAS.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

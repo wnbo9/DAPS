@@ -16,3 +16,4 @@ A data.frame with columns: SC_ID, SNP_ID, PIP.
 Construct a variant-level data frame listing variants inside each
 signal cluster or credible set (coverage given).
 }
+\keyword{internal}
