@@ -53,15 +53,10 @@
 #' @export
 #'
 #' @examples
-#' set.seed(1234)
-#' n <- 1000
-#' p <- 1000
-#' beta <- rep(0, p)
-#' beta[c(1, 200, 500, 800)] <- 1
-#' X <- matrix(rnorm(n*p), nrow = n, ncol = p)
-#' X <- scale(X, center = TRUE, scale = TRUE)
-#' y <- X %*% beta + rnorm(n)
-#' rst <- daps(X, y, L = 5)
+#' data(N3finemapping, package = "susieR")
+#' X <- N3finemapping$X
+#' y <- N3finemapping$Y[, 1]
+#' rst <- daps(X, y, L = 10)
 #' rst$sets
 #' daps_plot(rst)
 daps <- function(
@@ -171,19 +166,16 @@ daps <- function(
 #' @export
 #'
 #' @examples
-#' set.seed(1234)
-#' n <- 1000
-#' p <- 1000
-#' beta <- rep(0, p)
-#' beta[c(1, 200, 500, 800)] <- 1
-#' X <- matrix(rnorm(n*p), nrow = n, ncol = p)
-#' X <- scale(X, center = TRUE, scale = TRUE)
-#' y <- X %*% beta + rnorm(n)
-#' y <- scale(y, center = TRUE, scale = FALSE)
-#' XtX <- crossprod(X)
-#' Xty <- as.numeric(crossprod(X, y))
-#' yty <- sum(y^2)
-#' rst <- daps_ss(XtX, Xty, yty, n, L = 5)
+#' data(N3finemapping, package = "susieR")
+#' X <- N3finemapping$X
+#' y <- N3finemapping$Y[, 1]
+#' n <- nrow(X)
+#' X_c <- scale(X, center = TRUE, scale = FALSE)
+#' y_c <- y - mean(y)
+#' XtX <- crossprod(X_c)
+#' Xty <- as.numeric(crossprod(X_c, y_c))
+#' yty <- sum(y_c^2)
+#' rst <- daps_ss(XtX, Xty, yty, n, L = 10)
 #' rst$sets
 #' daps_plot(rst)
 daps_ss <- function(
@@ -301,10 +293,16 @@ daps_ss <- function(
 #' @export
 #'
 #' @examples
-#' z <- c(6,7)
-#' R <- matrix(1,2,2)
-#' rst <- daps_rss(z=z, R=R)
-#' rst$pip
+#' data(N3finemapping, package = "susieR")
+#' X <- N3finemapping$X
+#' y <- N3finemapping$Y[, 1]
+#' n <- nrow(X)
+#' ss <- susieR::univariate_regression(X, y)
+#' z <- ss$betahat / ss$sebetahat
+#' R <- cor(X)
+#' rst <- daps_rss(z = z, R = R, n = n, L = 10)
+#' rst$sets
+#' daps_plot(rst)
 daps_rss <- function(
   z = NULL, R, n = NULL,
   bhat = NULL, shat = NULL, var_y = NULL,

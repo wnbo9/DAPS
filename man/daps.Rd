@@ -90,15 +90,10 @@ DAP-S fine-mapping with individual-level genotype and phenotype data as
 input.
 }
 \examples{
-set.seed(1234)
-n <- 1000
-p <- 1000
-beta <- rep(0, p)
-beta[c(1, 200, 500, 800)] <- 1
-X <- matrix(rnorm(n*p), nrow = n, ncol = p)
-X <- scale(X, center = TRUE, scale = TRUE)
-y <- X \%*\% beta + rnorm(n)
-rst <- daps(X, y, L = 5)
+data(N3finemapping, package = "susieR")
+X <- N3finemapping$X
+y <- N3finemapping$Y[, 1]
+rst <- daps(X, y, L = 10)
 rst$sets
 daps_plot(rst)
 }

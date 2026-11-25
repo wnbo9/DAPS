@@ -87,8 +87,14 @@ DAP-S fine-mapping using regression summary statistics to recover
 sufficient statistics.
 }
 \examples{
-z <- c(6,7)
-R <- matrix(1,2,2)
-rst <- daps_rss(z=z, R=R)
-rst$pip
+data(N3finemapping, package = "susieR")
+X <- N3finemapping$X
+y <- N3finemapping$Y[, 1]
+n <- nrow(X)
+ss <- susieR::univariate_regression(X, y)
+z <- ss$betahat / ss$sebetahat
+R <- cor(X)
+rst <- daps_rss(z = z, R = R, n = n, L = 10)
+rst$sets
+daps_plot(rst)
 }

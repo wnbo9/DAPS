@@ -9,12 +9,15 @@ daps_plot(res, band = 0)
 \arguments{
 \item{res}{A list of DAP-S fine-mapping results.}
 
-\item{band}{Fraction of the row gap allowed for lifting between 0 and 1;
-default 0.}
+\item{band}{Fraction of the row gap allowed for lifting SNPs in the track
+panel by their within-signal PIP, between 0 and 1; default 0.}
 }
 \value{
 A ggplot object (patchwork layout).
 }
 \description{
-DAP-S PIP plot with cluster / credible-set annotation
+Plot SNP-level posterior inclusion probabilities (PIPs) in a locus-plot
+style, with SNPs colored by signal cluster (or credible set). The lead SNP
+of each cluster is shown as a diamond and labeled. A track panel below
+shows the members of each cluster, with its CPIP (or coverage) on the right.
 }
