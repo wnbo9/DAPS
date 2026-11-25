@@ -20,7 +20,7 @@ library(DAPS)
 See the [vignettes](https://wnbo9.github.io/DAPS/articles/index.html) for a quick start and worked examples.
 
 ## Dependencies
-`DAPS` requires R (>= 4.0.0), susieR (>= 0.15.0), Rcpp (>= 1.1.0), RcppArmadillo, Matrix, Rfast, ggplot2 and patchwork.
+`DAPS` requires R (>= 4.0.0), susieR (>= 0.15.0), Rcpp (>= 1.1.0), RcppArmadillo, Matrix, ggplot2 and patchwork.
 
 We recommend running `DAPS` with an optimized BLAS library, such as **OpenBLAS**, **Intel MKL**, or **Apple's Accelerate framework**, which can be substantially faster than the reference BLAS shipped with R. Check your BLAS:
 ```r

@@ -39,3 +39,6 @@ Thumbs.db
 # ---- Temporary files ----
 *~
 *.swp
+
+# ---- R graphics device output ----
+Rplots.pdf

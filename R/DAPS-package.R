@@ -11,5 +11,4 @@
 #' @useDynLib DAPS, .registration = TRUE
 #' @importFrom Rcpp sourceCpp
 #' @importFrom Matrix triu
-#' @importFrom Rfast is.symmetric
 NULL

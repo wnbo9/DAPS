@@ -20,13 +20,13 @@ Imports:
     susieR (>= 0.15.0),
     ggplot2,
     patchwork,
-    Matrix,
-    Rfast
+    Matrix
 URL: https://wnbo9.github.io/DAPS/, https://github.com/wnbo9/DAPS
 BugReports: https://github.com/wnbo9/DAPS/issues
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    Rfast
 VignetteBuilder: knitr
 Remotes:
     stephenslab/susieR@bf2d02d
